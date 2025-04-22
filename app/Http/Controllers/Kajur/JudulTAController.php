@@ -16,16 +16,16 @@ class JudulTAController extends Controller
         $pengajuan = JudulTA::with('mahasiswa')
             ->latest()
             ->get();
-            
+
         return view('kajur.judul-ta.index', compact('pengajuan'));
     }
 
     public function show($id)
     {
         $pengajuan = JudulTA::with('mahasiswa')->findOrFail($id);
-        
+
         $dosen = User::where('role', 'dosen')->get();
-            
+
         return view('kajur.judul-ta.show', compact('pengajuan', 'dosen'));
     }
 
@@ -78,7 +78,7 @@ class JudulTAController extends Controller
         $pengajuan = JudulTA::findOrFail($id);
 
         $existingPembimbing = DosenPembimbing::where('judul_ta_id', $id)->first();
-        
+
         if ($existingPembimbing) {
             $existingPembimbing->update([
                 'dosen_id' => $request->dosen_id

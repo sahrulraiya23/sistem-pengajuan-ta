@@ -42,7 +42,7 @@ class JudulTAController extends Controller
             'status' => 'submitted',
         ]);
 
-        return redirect()->route('judul-ta.index')
+        return redirect()->route('mahasiswa.judul-ta.index')
             ->with('success', 'Pengajuan judul tugas akhir berhasil dikirim');
     }
 

@@ -9,7 +9,7 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">Pengajuan Judul Tugas Akhir</h5>
-                            <a href="{{ route('judul-ta.create') }}" class="btn btn-primary">Ajukan Judul Baru</a>
+                            <a href="{{ route('mahasiswa.judul-ta.create') }}" class="btn btn-primary">Ajukan Judul Baru</a>
                         </div>
                     </div>
 
@@ -57,7 +57,7 @@
                                                 </td>
                                                 <td>{{ $item->created_at->format('d M Y') }}</td>
                                                 <td>
-                                                    <a href="{{ route('judul-ta.show', $item->id) }}"
+                                                    <a href="{{ route('mahasiswa.judul-ta.show', $item->id) }}"
                                                         class="btn btn-sm btn-info">Detail</a>
                                                 </td>
                                             </tr>

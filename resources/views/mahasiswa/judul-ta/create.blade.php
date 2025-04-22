@@ -10,12 +10,12 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">Ajukan Judul Tugas Akhir</h5>
-                            <a href="{{ route('judul-ta.index') }}" class="btn btn-secondary">Kembali</a>
+                            <a href="{{ route('mahasiswa.judul-ta.index') }}" class="btn btn-secondary">Kembali</a>
                         </div>
                     </div>
 
                     <div class="card-body">
-                        <form action="{{ route('judul-ta.store') }}" method="POST">
+                        <form action="{{ route('mahasiswa.judul-ta.store') }}" method="POST">
                             @csrf
                             <div class="mb-3">
                                 <label for="judul1" class="form-label">Judul Pilihan 1</label>
