@@ -18,7 +18,7 @@ class JudulTAController extends Controller
             ->latest()
             ->get();
 
-        return view('mahasiswa.judul-ta.index', compact('pengajuan'));
+        return view('mahasiswa.index', compact('pengajuan'));
     }
 
     public function create()

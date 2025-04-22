@@ -19,7 +19,7 @@ class SuratController extends Controller
         $surat = SuratTA::where('judul_ta_id', $id)->first();
 
         if (!$surat) {
-            return redirect()->route('judul-ta.show', $id)
+            return redirect()->route('mahasiswa.judul-ta.show', $id)
                 ->with('error', 'Surat tugas akhir belum tersedia');
         }
 

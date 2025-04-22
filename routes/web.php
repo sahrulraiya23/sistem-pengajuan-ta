@@ -11,8 +11,9 @@ use App\Http\Controllers\Dosen\RevisiController as DosenRevisiController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return view('welcome');
 });
+
 Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -25,7 +26,7 @@ Route::middleware(['auth'])->group(function () {
     // Mahasiswa routes
     Route::prefix('mahasiswa')->middleware(['role:mahasiswa'])->group(function () {
         Route::get('judul-ta/create', [JudulTAController::class, 'create'])->name('mahasiswa.judul-ta.create');
-        Route::get('judul-ta/index', [JudulTAController::class, 'create'])->name('mahasiswa.judul-ta.index');
+        Route::get('judul-ta/index', [JudulTAController::class, 'index'])->name('mahasiswa.judul-ta.index');
         Route::get('judul-ta/{id}', [JudulTAController::class, 'show'])->name('mahasiswa.judul-ta.show');
         Route::post('judul-ta', [JudulTAController::class, 'store'])->name('mahasiswa.judul-ta.store');
         Route::get('revisi/{id}', [RevisiController::class, 'show'])->name('mahasiswa.revisi.show');
