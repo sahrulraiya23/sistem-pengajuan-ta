@@ -53,10 +53,7 @@
                                                                             <span class="badge bg-danger">Ditolak</span>
                                                                         @endif
                                                                     </td>
-                                                                    <td>
-                                                                        <a href="{{ route('pengajuan.show', $pengajuan->id) }}"
-                                                                            class="btn btn-sm btn-info">Detail</a>
-                                                                    </td>
+
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>
@@ -158,10 +155,7 @@
                                                                             <span class="badge bg-danger">Ditolak</span>
                                                                         @endif
                                                                     </td>
-                                                                    <td>
-                                                                        <a href="{{ route('dosen.pengajuan.show', $pengajuan->id) }}"
-                                                                            class="btn btn-sm btn-info">Detail</a>
-                                                                    </td>
+
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>
@@ -289,10 +283,7 @@
                                                                     <span class="badge bg-danger">Ditolak</span>
                                                                 @endif
                                                             </td>
-                                                            <td>
-                                                                <a href="{{ route('admin.pengajuan.show', $pengajuan->id) }}"
-                                                                    class="btn btn-sm btn-info">Detail</a>
-                                                            </td>
+
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
