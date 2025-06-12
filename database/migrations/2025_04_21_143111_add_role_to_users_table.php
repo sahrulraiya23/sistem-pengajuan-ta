@@ -6,26 +6,33 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    // database/migrations/xxxx_add_role_to_users_table.php
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('role', ['mahasiswa', 'dosen', 'kajur'])->after('password');
-            $table->string('nomor_induk')->nullable()->after('role');
-            $table->string('program_studi')->nullable()->after('nomor_induk');
+            if (!Schema::hasColumn('users', 'role')) {
+                $table->enum('role', ['mahasiswa', 'dosen', 'kajur'])->after('password');
+            }
+            if (!Schema::hasColumn('users', 'nomor_induk')) {
+                $table->string('nomor_induk')->nullable()->after('role');
+            }
+            if (!Schema::hasColumn('users', 'program_studi')) {
+                $table->string('program_studi')->nullable()->after('nomor_induk');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            if (Schema::hasColumn('users', 'role')) {
+                $table->dropColumn('role');
+            }
+            if (Schema::hasColumn('users', 'nomor_induk')) {
+                $table->dropColumn('nomor_induk');
+            }
+            if (Schema::hasColumn('users', 'program_studi')) {
+                $table->dropColumn('program_studi');
+            }
         });
     }
 };

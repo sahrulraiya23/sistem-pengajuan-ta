@@ -10,13 +10,12 @@ use App\Http\Controllers\Dosen\BimbinganController;
 use App\Http\Controllers\Dosen\RevisiController as DosenRevisiController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get("/", function () {
+    return redirect()->route("login");
 });
 
 Route::middleware(['auth'])->group(function () {
-    // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
 
     // Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -40,7 +39,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('judul-ta/{id}', [KajurJudulTAController::class, 'show'])->name('kajur.judul-ta.show');
         Route::post('judul-ta/{id}/approve', [KajurJudulTAController::class, 'approve'])->name('kajur.judul-ta.approve');
         Route::post('judul-ta/{id}/reject', [KajurJudulTAController::class, 'reject'])->name('kajur.judul-ta.reject');
-        Route::post('judul-ta/{id}/assign-pembimbing', [KajurJudulTAController::class, 'assignPembimbing'])->name('kajur.judul-ta.assign-pembimbing');
+        Route::post('judul-ta/{id}/assign-pembimbing', [KajurJudulTAController::class, 'assignPembimbing'])->name('kajur.judul-ta.assignPembimbing');
     });
 
     // Dosen routes

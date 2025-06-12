@@ -20,7 +20,7 @@
                 Ajukan Judul
             </a>
 
-            <a class="nav-link" href="{{ route('dashboard') }}">
+            <a class="nav-link" href="{{ route('mahasiswa.judul-ta.index') }}">
                 <div class="nav-link-icon"><i data-feather="activity"></i></div>
                 TA Sebelumnya
             </a>

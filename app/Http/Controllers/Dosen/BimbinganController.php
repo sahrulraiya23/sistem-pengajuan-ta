@@ -20,6 +20,7 @@ class BimbinganController extends Controller
             ->latest()
             ->get();
 
+
         return view('dosen.bimbingan.index', compact('bimbingan'));
     }
     public function create()
