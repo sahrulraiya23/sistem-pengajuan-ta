@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 
-@include('mahasiswa.css')
+@include('template.css')
 
 <body class="nav-fixed">
-    @include('mahasiswa.nav')
+    @include('template.nav')
 
     <div id="layoutSidenav">
         <div id="layoutSidenav_nav">
-            @include('mahasiswa.sidenav')
+            @include('template.sidenav')
 
         </div>
         <div id="layoutSidenav_content">
@@ -143,12 +143,12 @@
             </div>
 
 
-            @include('mahasiswa.footer')
+            @include('template.footer')
 
 
         </div>
     </div>
-    @include('mahasiswa.script')
+    @include('template.script')
 
 </body>
 

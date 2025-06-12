@@ -24,6 +24,7 @@ class RevisiController extends Controller
         return view('mahasiswa.revisi.show', compact('pengajuan', 'revisi', 'id'));
     }
 
+
     public function store(Request $request, $id)
     {
         $request->validate([
@@ -35,18 +36,29 @@ class RevisiController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
+        if (!$pengajuan->dosen_pembimbing_1_id) {
+            return redirect()->back()->with('error', 'Tidak dapat mengirim revisi, Dosen Pembimbing belum ada.');
+        }
+
+        // Perhatikan: Kita perlu cara untuk menyimpan usulan judul baru dari mahasiswa.
+        // Kita bisa gabungkan di dalam catatan.
+        $catatan_lengkap = "Usulan Judul Baru: " . $request->judul_revisi . "\n\n" . "Catatan: " . $request->catatan;
+
         Revisi::create([
             'judul_ta_id' => $id,
             'user_id' => Auth::id(),
             'role_type' => 'mahasiswa',
-            'catatan' => $request->catatan,
+            // Simpan catatan yang sudah digabung
+            'catatan' => $catatan_lengkap,
+            'dosen_id' => $pengajuan->dosen_pembimbing_1_id,
         ]);
 
-        $pengajuan->update([
-            'judul_revisi' => $request->judul_revisi,
-        ]);
+        // HAPUS BAGIAN UPDATE INI. JANGAN UPDATE JUDUL DULU.
+        // $pengajuan->update([
+        //     'judul' => $request->judul_revisi,
+        // ]);
 
         return redirect()->route('mahasiswa.revisi.show', $id)
-            ->with('success', 'Revisi berhasil dikirim');
+            ->with('success', 'Usulan Revisi berhasil dikirim dan menunggu persetujuan dosen.');
     }
 }
