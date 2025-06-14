@@ -101,4 +101,25 @@ class JudulTAController extends Controller
         return redirect()->route('kajur.judul-ta.show', $id)
             ->with('success', 'Pembimbing berhasil ditentukan');
     }
+    public function finalize(Request $request, $id)
+    {
+        $judulTA = JudulTA::findOrFail($id);
+        $judulTA->status = 'finalized';
+        $judulTA->save();
+
+        // Logika untuk membuat nomor surat
+        $nomorSurat = 'TA/' . date('Y/m') . '/' . $judulTA->id;
+
+        SuratTA::updateOrCreate(
+            ['judul_ta_id' => $id],
+            [
+                'nomor_surat' => $nomorSurat,
+                'tanggal_terbit' => now(),
+            ]
+        );
+
+        // Redirect kembali ke halaman detail KAJUR
+        return redirect()->route('kajur.judul-ta.show', $id)
+            ->with('success', 'Judul TA berhasil difinalisasi dan surat tugas telah dibuat.');
+    }
 }

@@ -30,7 +30,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('judul-ta', [JudulTAController::class, 'store'])->name('mahasiswa.judul-ta.store');
         Route::get('revisi/{id}', [RevisiController::class, 'show'])->name('mahasiswa.revisi.show');
         Route::post('revisi/{id}', [RevisiController::class, 'store'])->name('mahasiswa.revisi.store');
+
         Route::get('surat/{id}', [SuratController::class, 'show'])->name('mahasiswa.surat.show');
+        Route::get('surat/{id}/download', [SuratController::class, 'downloadPDF'])->name('mahasiswa.surat.download');
     });
 
     // Kajur routes
@@ -40,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('judul-ta/{id}/approve', [KajurJudulTAController::class, 'approve'])->name('kajur.judul-ta.approve');
         Route::post('judul-ta/{id}/reject', [KajurJudulTAController::class, 'reject'])->name('kajur.judul-ta.reject');
         Route::post('judul-ta/{id}/assign-pembimbing', [KajurJudulTAController::class, 'assignPembimbing'])->name('kajur.judul-ta.assignPembimbing');
+        Route::put('judul-ta/{id}/finalize', [KajurJudulTAController::class, 'finalize'])->name('kajur.judul-ta.finalize');
     });
 
     // Dosen routes

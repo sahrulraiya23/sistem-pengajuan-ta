@@ -304,10 +304,11 @@
                                                     </h6>
                                                 </div>
                                                 <div class="card-body p-4">
-                                                    <form action="{{ route('dosen.bimbingan.finalize', $pengajuan->id) }}"
+                                                    <form action="{{ route('kajur.judul-ta.finalize', $pengajuan->id) }}"
                                                         method="POST"
                                                         onsubmit="return confirm('Apakah Anda yakin ingin memfinalisasi judul tugas akhir ini?');">
                                                         @csrf
+                                                        @method('PUT')
                                                         <div class="d-grid">
                                                             <button type="submit" class="btn btn-primary btn-lg">
                                                                 <i class="bi bi-check-circle me-2"></i>Finalisasi Judul

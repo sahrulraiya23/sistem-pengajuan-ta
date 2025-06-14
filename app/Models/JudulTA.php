@@ -29,7 +29,8 @@ class JudulTA extends Model
 
     public function pembimbing()
     {
-        return $this->hasOne(DosenPembimbing::class);
+
+        return $this->hasOne(DosenPembimbing::class, 'judul_ta_id');
     }
 
     public function revisi()
@@ -39,6 +40,6 @@ class JudulTA extends Model
 
     public function surat()
     {
-        return $this->hasOne(SuratTA::class);
+        return $this->hasOne(SuratTA::class, 'judul_ta_id');
     }
 }

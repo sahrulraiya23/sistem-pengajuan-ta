@@ -11,7 +11,7 @@ class CheckRole
     public function handle(Request $request, Closure $next, $role)
     {
         if (!Auth::check() || Auth::user()->role !== $role) {
-            return redirect('/dashboard')->with('error', 'Anda tidak memiliki akses untuk fitur ini');
+            return redirect('/')->with('error', 'Anda tidak memiliki akses untuk fitur ini');
         }
 
         return $next($request);
