@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\JudulTA;
+use App\Models\SuratTA;
 use App\Models\User;
 use App\Models\DosenPembimbing;
 
@@ -31,26 +32,33 @@ class JudulTAController extends Controller
 
     public function approve(Request $request, $id)
     {
+        // 1. Validasi input dari form, TERMASUK dosen_id
         $request->validate([
             'judul_approved' => 'required|string|max:255',
-            'dosen_id' => 'required|exists:users,id',
+            'dosen_id' => 'required|exists:users,id', // dosen_id wajib ada & valid
+        ], [
+            'judul_approved.required' => 'Silakan pilih atau tentukan judul yang akan disetujui.',
+            'dosen_id.required' => 'Anda wajib memilih dosen pembimbing.',
         ]);
 
         $pengajuan = JudulTA::findOrFail($id);
 
+        // 2. Update status pengajuan
         $pengajuan->update([
             'status' => 'approved',
             'judul_approved' => $request->judul_approved,
         ]);
 
+        // 3. Buat data pembimbing dari input form ($request)
         DosenPembimbing::create([
             'judul_ta_id' => $id,
-            'dosen_id' => $request->dosen_id,
+            'dosen_id' => $request->dosen_id, // Mengambil ID Dosen dari request
         ]);
 
-        return redirect()->route('kajur.judul-ta.index')
-            ->with('success', 'Pengajuan judul berhasil disetujui dan pembimbing telah ditentukan');
+        return redirect()->route('kajur.judul-ta.show', $id)
+            ->with('success', 'Pengajuan judul berhasil disetujui dan pembimbing telah ditentukan.');
     }
+
 
     public function reject(Request $request, $id)
     {
