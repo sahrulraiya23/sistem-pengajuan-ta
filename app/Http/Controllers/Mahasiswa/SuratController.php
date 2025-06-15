@@ -32,10 +32,7 @@ class SuratController extends Controller
                 ->with('error', 'Surat tugas akhir belum tersedia untuk diunduh.');
         }
 
-        // 2. Load view PDF yang tadi kita buat
         $pdf = PDF::loadView('mahasiswa.surat.pdf_view', compact('pengajuan', 'surat'));
-
-        // 3. Atur ukuran kertas (opsional, tapi disarankan)
         $pdf->setPaper('a4', 'portrait');
 
         // 4. Buat nama file dan mulai download

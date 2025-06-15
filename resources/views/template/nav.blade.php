@@ -7,7 +7,10 @@
     <!-- * * Tip * * You can use text or an image for your navbar brand.-->
     <!-- * * * * * * When using an image, we recommend the SVG format.-->
     <!-- * * * * * * Dimensions: Maximum height: 32px, maximum width: 240px-->
-    <a class="navbar-brand pe-3 ps-4 ps-lg-2" href="ruote('/')">Judul TA</a>
+    <a class="navbar-brand d-flex align-items-center pe-3 ps-4 ps-lg-2" href="{{ route('home') }}">
+        <img src="{{ asset('assets/img/logo-uho.png') }}" alt="Logo UHO" style="height: 35px;" class="me-3">
+        <span style="font-size: 12px;">Teknik Informatika</span>
+    </a>
     <!-- Navbar Search Input-->
     <!-- * * Note: * * Visible only on and above the lg breakpoint-->
     <form class="form-inline me-auto d-none d-lg-block me-3">
@@ -104,7 +107,8 @@
                 </a>
                 <!-- Example Alert 3-->
                 <a class="dropdown-item dropdown-notifications-item" href="#!">
-                    <div class="dropdown-notifications-item-icon bg-danger"><i class="fas fa-exclamation-triangle"></i>
+                    <div class="dropdown-notifications-item-icon bg-danger"><i
+                            class="fas fa-exclamation-triangle"></i>
                     </div>
                     <div class="dropdown-notifications-item-content">
                         <div class="dropdown-notifications-item-content-details">December 8, 2021</div>
@@ -232,8 +236,11 @@
 
     </ul>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="{{ asset('js/scripts.js') }}"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" crossorigin="anonymous"></script>
     <script>
-        feather.replace();
+        feather.replace()
     </script>
+
 </nav>
