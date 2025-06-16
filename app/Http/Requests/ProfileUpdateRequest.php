@@ -25,6 +25,8 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'nomor_induk' => ['nullable', 'string', 'max:255'], // Tambahkan ini
+            'peminatan' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

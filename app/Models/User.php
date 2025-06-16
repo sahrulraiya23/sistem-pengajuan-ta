@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+
+use Filament\Models\Contracts\FilamentUser; // Impor kelas ini
+use Filament\Panel;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -19,7 +22,8 @@ class User extends Authenticatable
         'password',
         'role',
         'nomor_induk',
-        'program_studi',
+        'peminatan',
+
     ];
 
     protected $hidden = [
@@ -45,5 +49,9 @@ class User extends Authenticatable
     public function revisi()
     {
         return $this->hasMany(Revisi::class);
+    }
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $this->role === 'admin';
     }
 }

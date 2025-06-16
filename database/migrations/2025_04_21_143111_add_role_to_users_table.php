@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'role')) {
-                $table->enum('role', ['mahasiswa', 'dosen', 'kajur'])->after('password');
+                $table->enum('role', ['mahasiswa', 'dosen', 'kajur', 'admin'])->after('password');
             }
             if (!Schema::hasColumn('users', 'nomor_induk')) {
                 $table->string('nomor_induk')->nullable()->after('role');
             }
-            if (!Schema::hasColumn('users', 'program_studi')) {
-                $table->string('program_studi')->nullable()->after('nomor_induk');
+            if (!Schema::hasColumn('users', 'peminatan')) {
+                $table->string('peminatan')->nullable()->after('nomor_induk');
             }
         });
     }
@@ -30,8 +30,8 @@ return new class extends Migration
             if (Schema::hasColumn('users', 'nomor_induk')) {
                 $table->dropColumn('nomor_induk');
             }
-            if (Schema::hasColumn('users', 'program_studi')) {
-                $table->dropColumn('program_studi');
+            if (Schema::hasColumn('users', 'peminatan')) {
+                $table->dropColumn('peminatan');
             }
         });
     }
