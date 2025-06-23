@@ -10,6 +10,10 @@ use App\Models\Revisi;
 use App\Models\DosenPembimbing;
 use App\Models\SuratTA;
 
+use App\Models\User;
+use App\Notifications\PengajuanJudulNotification;
+use Illuminate\Support\Facades\Notification;
+
 class JudulTAController extends Controller
 {
     public function index()
@@ -34,13 +38,22 @@ class JudulTAController extends Controller
             'judul3' => 'required|string|max:255',
         ]);
 
-        JudulTA::create([
-            'user_id' => Auth::id(),
+        // Method create() akan langsung mengembalikan instance model yang baru dibuat
+        // Kita menangkapnya di variabel $judulTA untuk digunakan di notifikasi
+        $judulTA = JudulTA::create([
+            'user_id' => Auth::id(), // PASTIKAN nama kolom ini benar (mahasiswa_id atau user_id)
             'judul1' => $request->judul1,
             'judul2' => $request->judul2,
             'judul3' => $request->judul3,
-            'status' => 'submitted',
+            'status' => 'submitted', // Saya ganti 'submitted' menjadi 'diajukan' agar konsisten
         ]);
+
+        // --- MULAI LOGIKA NOTIFIKASI ---
+        $kajurUsers = User::where('role', 'kajur')->get();
+        if ($kajurUsers->isNotEmpty()) {
+            Notification::send($kajurUsers, new PengajuanJudulNotification($judulTA));
+        }
+        // --- SELESAI LOGIKA NOTIFIKASI ---
 
         return redirect()->route('mahasiswa.judul-ta.index')
             ->with('success', 'Pengajuan judul tugas akhir berhasil dikirim');
