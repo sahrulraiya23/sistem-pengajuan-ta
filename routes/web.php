@@ -10,6 +10,10 @@ use App\Http\Controllers\Dosen\BimbinganController;
 use App\Http\Controllers\Dosen\RevisiController as DosenRevisiController;
 use Illuminate\Support\Facades\Route;
 
+
+use App\Http\Controllers\NotificationController;
+
+
 Route::get("/", function () {
     return redirect()->route("login");
 })->name('home');
@@ -52,6 +56,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('revisi/{id}', [DosenRevisiController::class, 'store'])->name('dosen.revisi.store');
         Route::post('bimbingan/{id}/finalize', [BimbinganController::class, 'finalize'])->name('dosen.bimbingan.finalize');
     });
+
+    Route::get('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notification.read');
 });
 
 require __DIR__ . '/auth.php';

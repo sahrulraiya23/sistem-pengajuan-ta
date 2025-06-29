@@ -27,4 +27,8 @@ class Revisi extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function dosen()
+    {
+        return $this->belongsTo(User::class, 'dosen_id');
+    }
 }

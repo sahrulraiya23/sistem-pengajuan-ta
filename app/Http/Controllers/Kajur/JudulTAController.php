@@ -27,27 +27,30 @@ class JudulTAController extends Controller
         return view('kajur.judul-ta.index', compact('pengajuan'));
     }
 
-    public function show($id)
+    public function show(Request $request, $id) // <-- PERUBAHAN 1: Tambahkan Request $request
     {
-        // --- LOGIKA BARU: TANDAI SATU NOTIFIKASI TELAH DIBACA ---
-        // Cari notifikasi yang berhubungan dengan pengajuan judul ini.
-        $notification = Auth::user()
-            ->unreadNotifications
-            ->where('data.judul_id', $id) // Mencari notifikasi berdasarkan ID dari URL
-            ->first();
+        // --- LOGIKA BARU YANG DIUBAH: Menangani notifikasi dari URL ---
+        // Cek apakah ada parameter 'notification_id' di URL
+        if ($request->has('notification_id')) {
+            // Cari notifikasi yang belum dibaca milik user berdasarkan ID dari URL
+            $notification = Auth::user()
+                ->unreadNotifications
+                ->where('id', $request->notification_id)
+                ->first();
 
-        // Jika notifikasi spesifik itu ditemukan, tandai sebagai telah dibaca.
-        if ($notification) {
-            $notification->markAsRead();
+            // Jika notifikasi spesifik itu ditemukan, tandai sebagai "dibaca"
+            if ($notification) {
+                $notification->markAsRead();
+            }
         }
         // --- SELESAI LOGIKA BARU ---
 
+        // Kode asli Anda untuk mengambil data dan menampilkan view tetap sama
         $pengajuan = JudulTA::with('mahasiswa')->findOrFail($id);
         $dosen = User::where('role', 'dosen')->get();
 
         return view('kajur.judul-ta.show', compact('pengajuan', 'dosen'));
     }
-
     public function approve(Request $request, $id)
     {
         // (Tidak ada perubahan di sini)

@@ -23,20 +23,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Menggunakan closure-based view composer untuk membagikan data ke view spesifik.
-        // Kode ini akan dieksekusi setiap kali view 'template.nav' dirender.
-        View::composer('template.nav', function ($view) {
-            $user = Auth::user();
-            $unreadNotifications = [];
-
-            // Pastikan user sudah login dan perannya adalah 'kajur'
-            if ($user && $user->role === 'kajur') {
+        // ---- AWAL BLOK KODE BARU ----
+        // Bagikan notifikasi ke semua view jika user sudah login
+        View::composer('*', function ($view) {
+            if (Auth::check()) {
                 // Ambil notifikasi yang belum dibaca
-                $unreadNotifications = $user->unreadNotifications;
+                $view->with('unreadNotifications', Auth::user()->unreadNotifications);
+            } else {
+                // Jika tidak login, kirim koleksi kosong
+                $view->with('unreadNotifications', collect());
             }
-
-            // Kirim variabel 'unreadNotifications' ke view
-            $view->with('unreadNotifications', $unreadNotifications);
         });
+        // ---- AKHIR BLOK KODE BARU ----
     }
 }
