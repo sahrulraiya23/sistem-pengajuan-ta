@@ -13,6 +13,7 @@ class JudulTA extends Model
 
     protected $fillable = [
         'user_id',
+        'dosen_saran_id',
         'judul1',
         'judul2',
         'judul3',

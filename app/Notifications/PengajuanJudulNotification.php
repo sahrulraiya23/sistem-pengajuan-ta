@@ -40,10 +40,6 @@ class PengajuanJudulNotification extends Notification
         return [
             'judul_id' => $this->judulTA->id,
             'message' => 'Mahasiswa ' . $mahasiswaName . ' telah mengajukan judul baru.',
-
-            // =======================================================
-            // PERBAIKAN: Ubah kunci 'url' menjadi 'path' agar sesuai dengan view
-            // =======================================================
             'path' => route('kajur.judul-ta.show', $this->judulTA->id),
         ];
     }

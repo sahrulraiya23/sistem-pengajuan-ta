@@ -100,55 +100,35 @@
                     </h6>
 
                     {{-- Loop untuk setiap notifikasi --}}
-                    @forelse(auth()->user()->unreadNotifications as $notification)
-                        {{-- 
-                    ===========================================================
-                    PERUBAHAN UTAMA DI SINI:
-                    Kita membuat URL langsung di dalam 'href' untuk menghindari error
-                    "Undefined variable $url".
-                    ===========================================================
-                --}}
-                        <a class="dropdown-item dropdown-notifications-item"
-                            href="{{ ($notification->data['path'] ?? url('/dashboard')) . '?notification_id=' . $notification->id }}">
+                    {{-- resources/views/template/nav.blade.php --}}
 
-                            <div class="dropdown-notifications-item-content">
-                                <div class="dropdown-notifications-item-content-text">
-                                    {{ $notification->data['message'] }}
-                                </div>
-                                <div class="dropdown-notifications-item-content-details">
-                                    {{ $notification->created_at->diffForHumans() }}
-                                </div>
-                            </div>
-                        </a>
-                    @empty
-                        <a class="dropdown-item dropdown-notifications-item" href="#!">
-                            <div class="dropdown-notifications-item-content">
-                                <div class="dropdown-notifications-item-content-text">Tidak ada notifikasi baru.</div>
-                            </div>
-                        </a>
-                    @endforelse
-
-                    {{-- Tautan "Lihat Semua" yang dinamis berdasarkan peran --}}
-                    @if (Auth::user()->role == 'kajur')
-                        <a class="dropdown-item dropdown-notifications-footer"
-                            href="{{ route('kajur.judul-ta.index') }}">Lihat semua pengajuan</a>
-                    @elseif(Auth::user()->role == 'mahasiswa')
+                    @forelse(Auth::user()->unreadNotifications->take(5) as $notification)
                         @php
-                            // Ambil judul TA terakhir yang dimiliki mahasiswa
-                            $judulTaMahasiswa = Auth::user()->judulTA()->latest()->first();
+                            // Cek apakah notifikasi ini untuk Kajur (pakai 'path') atau Dosen (pakai 'url')
+                            $link = '#'; // Link default jika terjadi kesalahan
+                            if (isset($notification->data['path'])) {
+                                // KHUSUS KAJUR: Buat link langsung ke controller Kajur
+                                $link = $notification->data['path'] . '?notification_id=' . $notification->id;
+                            } elseif (isset($notification->data['url'])) {
+                                // UNTUK DOSEN & LAINNYA: Gunakan NotificationController
+                                $link = route('notification.read', $notification->id); // Sesuaikan dengan nama route Anda
+                            }
                         @endphp
 
-                        {{-- Arahkan ke detail judul jika ada, jika tidak, arahkan ke halaman pembuatan judul --}}
-                        <a class="dropdown-item dropdown-notifications-footer"
-                            href="{{ $judulTaMahasiswa ? route('mahasiswa.judul-ta.show', $judulTaMahasiswa->id) : route('mahasiswa.judul-ta.create') }}">
-
-                            {{-- Tampilkan teks yang sesuai --}}
-                            {{ $judulTaMahasiswa ? 'Lihat Progres TA' : 'Ajukan Judul TA' }}
+                        {{-- Gunakan variabel $link yang sudah disiapkan --}}
+                        <a class="dropdown-item d-flex align-items-center" href="{{ $link }}">
+                            <div>
+                                <div class="small text-gray-500">{{ $notification->created_at->diffForHumans() }}</div>
+                                <span class="font-weight-bold">
+                                    {{ $notification->data['message'] }}
+                                </span>
+                            </div>
                         </a>
-                    @elseif(Auth::user()->role == 'dosen')
-                        <a class="dropdown-item dropdown-notifications-footer"
-                            href="{{ route('dosen.bimbingan.index') }}">Lihat daftar bimbingan</a>
-                    @endif
+
+                    @empty
+                        <a class="dropdown-item text-center small text-gray-500" href="#">Tidak ada notifikasi
+                            baru</a>
+                    @endforelse
                 </div>
             </li>
         @endif

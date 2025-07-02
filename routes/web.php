@@ -42,9 +42,10 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('kajur')->middleware(['role:kajur'])->group(function () {
         Route::get('judul-ta', [KajurJudulTAController::class, 'index'])->name('kajur.judul-ta.index');
         Route::get('judul-ta/{id}', [KajurJudulTAController::class, 'show'])->name('kajur.judul-ta.show');
-        Route::post('judul-ta/{id}/approve', [KajurJudulTAController::class, 'approve'])->name('kajur.judul-ta.approve');
-        Route::post('judul-ta/{id}/reject', [KajurJudulTAController::class, 'reject'])->name('kajur.judul-ta.reject');
-        Route::post('judul-ta/{id}/assign-pembimbing', [KajurJudulTAController::class, 'assignPembimbing'])->name('kajur.judul-ta.assignPembimbing');
+        Route::put('judul-ta/{id}/process', [KajurJudulTAController::class, 'processSubmission'])->name('kajur.judul-ta.process');
+        // Route::post('judul-ta/{id}/approve', [KajurJudulTAController::class, 'approve'])->name('kajur.judul-ta.approve');
+        // Route::post('judul-ta/{id}/reject', [KajurJudulTAController::class, 'reject'])->name('kajur.judul-ta.reject');
+        // Route::post('judul-ta/{id}/assign-pembimbing', [KajurJudulTAController::class, 'assignPembimbing'])->name('kajur.judul-ta.assignPembimbing');
         Route::put('judul-ta/{id}/finalize', [KajurJudulTAController::class, 'finalize'])->name('kajur.judul-ta.finalize');
     });
 
