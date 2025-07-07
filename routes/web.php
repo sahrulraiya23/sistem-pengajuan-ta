@@ -33,6 +33,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('judul-ta', [JudulTAController::class, 'store'])->name('mahasiswa.judul-ta.store');
         Route::get('revisi/{id}', [RevisiController::class, 'show'])->name('mahasiswa.revisi.show');
         Route::post('revisi/{id}', [RevisiController::class, 'store'])->name('mahasiswa.revisi.store');
+        Route::post('/judul-ta/{id}/re-submit', [JudulTAController::class, 'reSubmitAfterConsultation'])->name('mahasiswa.judul-ta.re-submit');
+
 
         Route::get('surat/{id}', [SuratController::class, 'show'])->name('mahasiswa.surat.show');
         Route::get('surat/{id}/download', [SuratController::class, 'downloadPDF'])->name('mahasiswa.surat.download');
@@ -42,10 +44,11 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('kajur')->middleware(['role:kajur'])->group(function () {
         Route::get('judul-ta', [KajurJudulTAController::class, 'index'])->name('kajur.judul-ta.index');
         Route::get('judul-ta/{id}', [KajurJudulTAController::class, 'show'])->name('kajur.judul-ta.show');
-        Route::post('judul-ta/{id}/approve', [KajurJudulTAController::class, 'approve'])->name('kajur.judul-ta.approve');
-        Route::post('judul-ta/{id}/reject', [KajurJudulTAController::class, 'reject'])->name('kajur.judul-ta.reject');
+        #Route::post('judul-ta/{id}/approve', [KajurJudulTAController::class, 'approve'])->name('kajur.judul-ta.approve');
+        // Route::post('judul-ta/{id}/reject', [KajurJudulTAController::class, 'reject'])->name('kajur.judul-ta.reject');
         Route::post('judul-ta/{id}/assign-pembimbing', [KajurJudulTAController::class, 'assignPembimbing'])->name('kajur.judul-ta.assignPembimbing');
         Route::put('judul-ta/{id}/finalize', [KajurJudulTAController::class, 'finalize'])->name('kajur.judul-ta.finalize');
+        Route::post('judul-ta/{id}/process-submission', [KajurJudulTAController::class, 'processSubmission'])->name('kajur.judul-ta.processSubmission');
     });
 
     // Dosen routes
@@ -54,7 +57,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('bimbingan/create', [BimbinganController::class, 'create'])->name('dosen.bimbingan.create');
         Route::get('bimbingan', [BimbinganController::class, 'index'])->name('dosen.bimbingan.index');
         Route::post('revisi/{id}', [DosenRevisiController::class, 'store'])->name('dosen.revisi.store');
-        Route::post('bimbingan/{id}/finalize', [BimbinganController::class, 'finalize'])->name('dosen.bimbingan.finalize');
+        //Route::post('bimbingan/{id}/finalize', [BimbinganController::class, 'finalize'])->name('dosen.bimbingan.finalize');
+        Route::post('/dosen/bimbingan/{id}/process-resubmission', [BimbinganController::class, 'processReSubmittedTitle'])->name('dosen.bimbingan.process-resubmission');
+        Route::post('/dosen/bimbingan/{id}/process-initial-review', [BimbinganController::class, 'processInitialLecturerReview'])->name('dosen.bimbingan.process-initial-review');
     });
 
     Route::get('notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notification.read');

@@ -150,75 +150,59 @@
                                         </div>
                                     </div>
 
-                                    @if ($pengajuan->status == 'submitted')
-                                        <!-- Panel Aksi Pengajuan -->
+                                    @if ($pengajuan->status == \App\Models\JudulTA::STATUS_SUBMITTED)
                                         <div class="row g-4 mb-4">
-                                            <!-- Form Persetujuan -->
                                             <div class="col-md-6">
                                                 <div class="card h-100 border-success shadow-sm">
                                                     <div class="card-header bg-success text-white p-3">
                                                         <h6 class="mb-0 fw-bold">
-                                                            <i class="bi bi-check-circle me-2"></i>Setujui Pengajuan
+                                                            <i class="bi bi-check-circle me-2"></i>Setujui Awal & Tunjuk
+                                                            Dosen Saran
                                                         </h6>
                                                     </div>
                                                     <div class="card-body p-4">
                                                         <form
-                                                            action="{{ route('kajur.judul-ta.approve', $pengajuan->id) }}"
+                                                            action="{{ route('kajur.judul-ta.processSubmission', $pengajuan->id) }}"
                                                             method="POST">
                                                             @csrf
-                                                            <div class="mb-3">
-                                                                <label for="judul_approved" class="form-label fw-medium">
-                                                                    Judul yang Disetujui
-                                                                </label>
-                                                                <select
-                                                                    class="form-select form-select-lg mb-2 @error('judul_approved') is-invalid @enderror"
-                                                                    id="judul_approved_select">
-                                                                    <option value="">-- Pilih dari judul yang diajukan
-                                                                        --</option>
-                                                                    <option value="{{ $pengajuan->judul1 }}">
-                                                                        {{ $pengajuan->judul1 }}</option>
-                                                                    <option value="{{ $pengajuan->judul2 }}">
-                                                                        {{ $pengajuan->judul2 }}</option>
-                                                                    <option value="{{ $pengajuan->judul3 }}">
-                                                                        {{ $pengajuan->judul3 }}</option>
-                                                                </select>
-                                                                <input type="text"
-                                                                    class="form-control @error('judul_approved') is-invalid @enderror"
-                                                                    id="judul_approved" name="judul_approved"
-                                                                    value="{{ old('judul_approved') }}" required>
-                                                                @error('judul_approved')
-                                                                    <div class="invalid-feedback">{{ $message }}</div>
-                                                                @enderror
-                                                                <div class="form-text">
-                                                                    <i class="bi bi-info-circle me-1"></i>
-                                                                    Pilih dari judul yang ada atau tuliskan judul baru
-                                                                </div>
-                                                            </div>
+                                                            <input type="hidden" name="tindakan" value="tunjuk_dosen">
+                                                            {{-- PENTING: Tindakan ini --}}
 
                                                             <div class="mb-4">
-                                                                <label for="dosen_id" class="form-label fw-medium">
-                                                                    Dosen Pembimbing
+                                                                <label for="dosen_saran_id" class="form-label fw-medium">
+                                                                    Tunjuk Dosen Saran
                                                                 </label>
                                                                 <select
-                                                                    class="form-select @error('dosen_id') is-invalid @enderror"
-                                                                    id="dosen_id" name="dosen_id" required>
-                                                                    <option value="">-- Pilih Dosen Pembimbing --
-                                                                    </option>
+                                                                    class="form-select @error('dosen_saran_id') is-invalid @enderror"
+                                                                    id="dosen_saran_id" name="dosen_saran_id" required>
+                                                                    <option value="">-- Pilih Dosen Saran --</option>
                                                                     @foreach ($dosen as $d)
                                                                         <option value="{{ $d->id }}"
-                                                                            {{ old('dosen_id') == $d->id ? 'selected' : '' }}>
+                                                                            {{ old('dosen_saran_id') == $d->id ? 'selected' : '' }}>
                                                                             {{ $d->name }}
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
-                                                                @error('dosen_id')
+                                                                @error('dosen_saran_id')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
+                                                            </div>
+
+                                                            <div class="mb-4">
+                                                                <label for="catatan_kajur_tunjuk_dosen"
+                                                                    class="form-label fw-medium">
+                                                                    Catatan untuk Dosen Saran (Opsional)
+                                                                </label>
+                                                                <textarea class="form-control @error('catatan') is-invalid @enderror" id="catatan_kajur_tunjuk_dosen" name="catatan"
+                                                                    rows="3">{{ old('catatan') }}</textarea>
+                                                                @error('catatan')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
 
                                                             <div class="d-grid gap-2">
                                                                 <button type="submit" class="btn btn-success btn-lg">
-                                                                    <i class="bi bi-check-lg me-2"></i>Setujui Pengajuan
+                                                                    <i class="bi bi-check-lg me-2"></i>Proses
                                                                 </button>
                                                             </div>
                                                         </form>
@@ -226,7 +210,6 @@
                                                 </div>
                                             </div>
 
-                                            <!-- Form Penolakan -->
                                             <div class="col-md-6">
                                                 <div class="card h-100 border-danger shadow-sm">
                                                     <div class="card-header bg-danger text-white p-3">
@@ -236,19 +219,20 @@
                                                     </div>
                                                     <div class="card-body p-4">
                                                         <form
-                                                            action="{{ route('kajur.judul-ta.reject', $pengajuan->id) }}"
+                                                            action="{{ route('kajur.judul-ta.processSubmission', $pengajuan->id) }}"
                                                             method="POST">
                                                             @csrf
+                                                            <input type="hidden" name="tindakan" value="tolak">
+                                                            {{-- PENTING: Tindakan tolak --}}
                                                             <div class="mb-4">
                                                                 <label for="alasan_penolakan"
                                                                     class="form-label fw-medium">Alasan Penolakan</label>
-                                                                <textarea class="form-control @error('alasan_penolakan') is-invalid @enderror" id="alasan_penolakan"
-                                                                    name="alasan_penolakan" rows="5" required>{{ old('alasan_penolakan') }}</textarea>
+                                                                <textarea class="form-control @error('alasan_penolakan') is-invalid @enderror" id="alasan_penolakan" name="catatan"
+                                                                    rows="5" required>{{ old('alasan_penolakan') }}</textarea> {{-- Gunakan name="catatan" sesuai controller --}}
                                                                 @error('alasan_penolakan')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
-
                                                             <div class="d-grid gap-2">
                                                                 <button type="submit" class="btn btn-danger btn-lg">
                                                                     <i class="bi bi-x-lg me-2"></i>Tolak Pengajuan
