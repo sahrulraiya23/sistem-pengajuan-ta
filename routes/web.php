@@ -45,7 +45,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('judul-ta/{id}/approve', [KajurJudulTAController::class, 'approve'])->name('kajur.judul-ta.approve');
         Route::post('judul-ta/{id}/reject', [KajurJudulTAController::class, 'reject'])->name('kajur.judul-ta.reject');
         Route::post('judul-ta/{id}/assign-pembimbing', [KajurJudulTAController::class, 'assignPembimbing'])->name('kajur.judul-ta.assignPembimbing');
+        Route::post('judul-ta/{id}/assign', [KajurJudulTAController::class, 'assignPembimbing'])->name('kajur.judul-ta.assignPembimbing');
         Route::put('judul-ta/{id}/finalize', [KajurJudulTAController::class, 'finalize'])->name('kajur.judul-ta.finalize');
+        Route::post('judul-ta/{id}/process-submission', [KajurJudulTAController::class, 'processSubmission'])->name('kajur.judul-ta.processSubmission');
     });
 
     // Dosen routes
