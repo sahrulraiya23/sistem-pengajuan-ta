@@ -34,75 +34,75 @@
                                 @endif
 
                                 <h6 class="border-bottom pb-2 mb-3">Informasi Pengajuan</h6>
-                                <div class="row mb-4">
-                                    <div class="col-md-6">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <th width="40%">Status</th>
-                                                <td>
-                                                    @if ($pengajuan->status == 'submitted')
-                                                        <span class="badge bg-info">Diajukan</span>
-                                                    @elseif($pengajuan->status == 'approved')
-                                                        <span class="badge bg-success">Disetujui</span>
-                                                    @elseif($pengajuan->status == 'rejected')
-                                                        <span class="badge bg-danger">Ditolak</span>
-                                                    @elseif($pengajuan->status == 'finalized')
-                                                        <span class="badge bg-primary">Difinalisasi</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>Tanggal Pengajuan</th>
-                                                <td>{{ $pengajuan->created_at->format('d M Y H:i') }}</td>
-                                            </tr>
-                                        </table>
+                                <div class="row mb-3">
+                                    <div class="col-md-4"><strong>Status:</strong></div>
+                                    <div class="col-md-8">
+                                        @php
+                                            $badgeClass = '';
+                                            $statusText = '';
+                                            switch ($pengajuan->status) {
+                                                case 'submitted':
+                                                    $badgeClass = 'bg-warning';
+                                                    $statusText = 'Diajukan';
+                                                    break;
+                                                case 'approved_for_consultation': // STATUS BARU
+                                                    $badgeClass = 'bg-info';
+                                                    $statusText = 'Disetujui Awal (Konsultasi Dosen Saran)';
+                                                    break;
+                                                case 'revisi':
+                                                    $badgeClass = 'bg-danger';
+                                                    $statusText = 'Revisi';
+                                                    break;
+                                                case 're_submitted_after_consultation': // STATUS BARU
+                                                    $badgeClass = 'bg-primary';
+                                                    $statusText = 'Diajukan Kembali (Menunggu Validasi Final)';
+                                                    break;
+                                                case 'finalized':
+                                                    $badgeClass = 'bg-success';
+                                                    $statusText = 'Finalisasi';
+                                                    break;
+                                                case 'rejected':
+                                                    $badgeClass = 'bg-dark';
+                                                    $statusText = 'Ditolak';
+                                                    break;
+                                                default:
+                                                    $badgeClass = 'bg-secondary';
+                                                    $statusText = 'Tidak Diketahui';
+                                                    break;
+                                            }
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">{{ $statusText }}</span>
                                     </div>
                                 </div>
 
-                                <h6 class="border-bottom pb-2 mb-3">Judul yang Diajukan</h6>
-                                <div class="row mb-4">
-                                    <div class="col-md-12">
-                                        <table class="table table-sm">
-                                            <tr>
-                                                <th width="20%">Judul Pilihan 1</th>
-                                                <td>{{ $pengajuan->judul1 }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Judul Pilihan 2</th>
-                                                <td>{{ $pengajuan->judul2 }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Judul Pilihan 3</th>
-                                                <td>{{ $pengajuan->judul3 }}</td>
-                                            </tr>
-                                            @if ($pengajuan->judul_approved)
-                                                <tr>
-                                                    <th>Judul yang Disetujui</th>
-                                                    <td><strong
-                                                            class="text-success">{{ $pengajuan->judul_approved }}</strong>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                            @if ($pengajuan->judul_revisi)
-                                                <tr>
-                                                    <th>Judul Revisi</th>
-                                                    <td><strong
-                                                            class="text-primary">{{ $pengajuan->judul_revisi }}</strong>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                            @if ($pengajuan->alasan_penolakan)
-                                                <tr>
-                                                    <th>Alasan Penolakan</th>
-                                                    <td><strong
-                                                            class="text-danger">{{ $pengajuan->alasan_penolakan }}</strong>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        </table>
+                                {{-- Informasi Dosen Saran --}}
+                                @if ($pengajuan->dosen_saran_id)
+                                    <div class="row mb-3">
+                                        <div class="col-md-4"><strong>Dosen Saran:</strong></div>
+                                        <div class="col-md-8">
+                                            {{ App\Models\User::find($pengajuan->dosen_saran_id)->name ?? '-' }}</div>
                                     </div>
-                                </div>
+                                @endif
 
+                                {{-- Catatan Kajur --}}
+                                @if ($pengajuan->catatan_kajur)
+                                    <div class="row mb-3">
+                                        <div class="col-md-4"><strong>Catatan Ketua Jurusan:</strong></div>
+                                        <div class="col-md-8">{{ $pengajuan->catatan_kajur }}</div>
+                                    </div>
+                                @endif
+
+                                {{-- Judul Disetujui Final --}}
+                                @if ($pengajuan->status == 'finalized' && $pengajuan->judul_approved)
+                                    <div class="row mb-3">
+                                        <div class="col-md-4"><strong>Judul Disetujui:</strong></div>
+                                        <div class="col-md-8 text-success">
+                                            <strong>{{ $pengajuan->judul_approved }}</strong>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                {{-- Dosen Pembimbing Utama --}}
                                 @if ($pembimbing)
                                     <h6 class="border-bottom pb-2 mb-3">Dosen Pembimbing</h6>
                                     <div class="row mb-4">
@@ -121,26 +121,50 @@
                                     </div>
                                 @endif
 
-                                @if ($pengajuan->status == 'approved' || $pengajuan->status == 'finalized')
-                                    <div class="row mb-4">
-                                        <div class="col-12 d-flex justify-content-between">
-                                            <a href="{{ route('mahasiswa.revisi.show', $pengajuan->id) }}"
-                                                class="btn btn-primary">
-                                                <i class="bi bi-pencil"></i> Kirim Revisi
-                                            </a>
-
-                                            @if ($surat)
-                                                <a href="{{ route('mahasiswa.surat.show', $pengajuan->id) }}"
-                                                    class="btn btn-success">
-                                                    <i class="bi bi-file-earmark-text"></i> Lihat Surat Tugas
-                                                </a>
-                                            @endif
+                                {{-- Tombol Aksi (Ajukan Kembali) --}}
+                                {{-- Tombol Aksi (Ajukan Kembali) --}}
+                                @if ($pengajuan->status == 'revisi')
+                                    <div class="mt-4">
+                                        <div class="card mb-3">
+                                            <div class="card-header bg-light">
+                                                <h6 class="mb-0">Ajukan Kembali Judul Setelah Revisi</h6>
+                                            </div>
+                                            <div class="card-body">
+                                                <form
+                                                    action="{{ route('mahasiswa.judul-ta.re-submit', $pengajuan->id) }}"
+                                                    method="POST">
+                                                    @csrf
+                                                    <div class="mb-3">
+                                                        <label for="judul_revisi_input" class="form-label">Judul yang
+                                                            Sudah Direvisi</label>
+                                                        <textarea class="form-control @error('judul_revisi') is-invalid @enderror" id="judul_revisi_input" name="judul_revisi"
+                                                            rows="3" required>{{ old('judul_revisi', $pengajuan->judul_revisi ?? $pengajuan->judul1) }}</textarea>
+                                                        <div class="form-text">Masukkan judul final setelah Anda
+                                                            merevisi sesuai saran dosen.</div>
+                                                        @error('judul_revisi')
+                                                            <div class="invalid-feedback">{{ $message }}</div>
+                                                        @enderror
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success">Ajukan Kembali ke
+                                                        Dosen Saran</button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 @endif
 
+                                {{-- Tombol Cetak Surat --}}
+                                @if ($pengajuan->status == 'finalized' && $surat)
+                                    <div class="mt-4">
+                                        <a href="{{ route('mahasiswa.surat.show', $surat->id) }}"
+                                            class="btn btn-primary">
+                                            <i class="bi bi-file-earmark-text"></i> Lihat Surat Tugas
+                                        </a>
+                                    </div>
+                                @endif
+
                                 @if ($revisi->isNotEmpty())
-                                    <h6 class="border-bottom pb-2 mb-3">Riwayat Revisi</h6>
+                                    <h6 class="border-bottom pb-2 mb-3 mt-4">Riwayat Revisi</h6>
                                     <div class="row">
                                         <div class="col-md-12">
                                             <div class="table-responsive">
@@ -174,18 +198,15 @@
                                         </div>
                                     </div>
                                 @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                            </div> {{-- End card-body --}}
+                        </div> {{-- End card --}}
+                    </div> {{-- End col-md-12 --}}
+                </div> {{-- End row --}}
+            </div> {{-- End container --}}
             @include('template.footer')
-
-
-        </div>
-    </div>
+        </div> {{-- End layoutSidenav_content --}}
+    </div> {{-- End layoutSidenav --}}
     @include('template.script')
-
 </body>
 
 </html>

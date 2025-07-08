@@ -160,13 +160,22 @@
                                         </div>
                                     </div>
 
+<<<<<<< HEAD
                                     @if ($pengajuan->status == 'submitted')
+=======
+                                    @if ($pengajuan->status == \App\Models\JudulTA::STATUS_SUBMITTED)
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                         <div class="row g-4 mb-4">
                                             <div class="col-md-6">
                                                 <div class="card h-100 border-info shadow-sm">
                                                     <div class="card-header bg-info text-white p-3">
                                                         <h6 class="mb-0 fw-bold">
+<<<<<<< HEAD
                                                             <i class="bi bi-person-plus me-2"></i>Tunjuk Dosen Saran
+=======
+                                                            <i class="bi bi-check-circle me-2"></i>Setujui Awal & Tunjuk
+                                                            Dosen Saran
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                         </h6>
                                                     </div>
                                                     <div class="card-body p-4">
@@ -175,6 +184,7 @@
                                                             method="POST">
                                                             @csrf
                                                             <input type="hidden" name="tindakan" value="tunjuk_dosen">
+<<<<<<< HEAD
 
                                                             {{-- Dosen Saran 1 --}}
                                                             <div class="mb-3">
@@ -189,15 +199,35 @@
                                                                     @foreach ($dosen as $d)
                                                                         <option value="{{ $d->id }}"
                                                                             {{ old('dosen_saran_ids.0') == $d->id || ($pengajuan->dosenSarans->count() > 0 && $pengajuan->dosenSarans[0]->id == $d->id) ? 'selected' : '' }}>
+=======
+                                                            {{-- PENTING: Tindakan ini --}}
+
+                                                            <div class="mb-4">
+                                                                <label for="dosen_saran_id" class="form-label fw-medium">
+                                                                    Tunjuk Dosen Saran
+                                                                </label>
+                                                                <select
+                                                                    class="form-select @error('dosen_saran_id') is-invalid @enderror"
+                                                                    id="dosen_saran_id" name="dosen_saran_id" required>
+                                                                    <option value="">-- Pilih Dosen Saran --</option>
+                                                                    @foreach ($dosen as $d)
+                                                                        <option value="{{ $d->id }}"
+                                                                            {{ old('dosen_saran_id') == $d->id ? 'selected' : '' }}>
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                                             {{ $d->name }}
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
+<<<<<<< HEAD
                                                                 @error('dosen_saran_ids.0')
+=======
+                                                                @error('dosen_saran_id')
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
 
+<<<<<<< HEAD
                                                             {{-- Dosen Saran 2 --}}
                                                             <div class="mb-3">
                                                                 <label for="dosen_saran_id_2" class="form-label fw-medium">
@@ -228,16 +258,30 @@
                                                                 <label for="catatan" class="form-label fw-medium">Catatan
                                                                     (Opsional)</label>
                                                                 <textarea class="form-control @error('catatan') is-invalid @enderror" id="catatan" name="catatan" rows="3">{{ old('catatan') }}</textarea>
+=======
+                                                            <div class="mb-4">
+                                                                <label for="catatan_kajur_tunjuk_dosen"
+                                                                    class="form-label fw-medium">
+                                                                    Catatan untuk Dosen Saran (Opsional)
+                                                                </label>
+                                                                <textarea class="form-control @error('catatan') is-invalid @enderror" id="catatan_kajur_tunjuk_dosen" name="catatan"
+                                                                    rows="3">{{ old('catatan') }}</textarea>
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                                 @error('catatan')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
 
                                                             <div class="d-grid gap-2">
+<<<<<<< HEAD
                                                                 <button type="submit"
                                                                     class="btn btn-info btn-lg text-white">
                                                                     <i class="bi bi-person-check me-2"></i>Tunjuk Dosen
                                                                     Saran
+=======
+                                                                <button type="submit" class="btn btn-success btn-lg">
+                                                                    <i class="bi bi-check-lg me-2"></i>Proses
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                                 </button>
                                                             </div>
                                                         </form>
@@ -258,16 +302,23 @@
                                                             method="POST">
                                                             @csrf
                                                             <input type="hidden" name="tindakan" value="tolak">
+<<<<<<< HEAD
+=======
+                                                            {{-- PENTING: Tindakan tolak --}}
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                             <div class="mb-4">
                                                                 <label for="alasan_penolakan"
                                                                     class="form-label fw-medium">Alasan Penolakan</label>
                                                                 <textarea class="form-control @error('alasan_penolakan') is-invalid @enderror" id="alasan_penolakan" name="catatan"
+<<<<<<< HEAD
                                                                     rows="5" required>{{ old('catatan') }}</textarea>
+=======
+                                                                    rows="5" required>{{ old('alasan_penolakan') }}</textarea> {{-- Gunakan name="catatan" sesuai controller --}}
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                                 @error('alasan_penolakan')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
-
                                                             <div class="d-grid gap-2">
                                                                 <button type="submit" class="btn btn-danger btn-lg">
                                                                     <i class="bi bi-x-lg me-2"></i>Tolak Pengajuan

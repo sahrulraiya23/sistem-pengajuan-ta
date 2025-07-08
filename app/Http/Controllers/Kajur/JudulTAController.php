@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Kajur;
 
+
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -47,7 +48,11 @@ class JudulTAController extends Controller
             }
         }
 
+<<<<<<< HEAD
         $pengajuan = JudulTA::with('mahasiswa', 'dosenSarans')->findOrFail($id); // EAGER LOAD dosenSarans
+=======
+        $pengajuan = JudulTA::with('mahasiswa')->findOrFail($id);
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
 
         // Ambil daftar semua dosen untuk ditampilkan di form
         $dosen = User::where('role', 'dosen')->get();
@@ -63,10 +68,16 @@ class JudulTAController extends Controller
         $request->validate([
             'tindakan' => 'required|in:tunjuk_dosen,tolak,final_approve',
             'catatan' => 'nullable|string|max:1000',
+<<<<<<< HEAD
             'dosen_saran_ids' => 'required_if:tindakan,tunjuk_dosen|array|min:1|max:2', // Ubah ke array, min 1, max 2
             'dosen_saran_ids.*' => 'exists:users,id', // Validasi setiap ID dalam array
             'final_dosen_pembimbing_id' => 'required_if:tindakan,final_approve|exists:users,id',
             'judul_approved_by_kajur' => 'required_if:tindakan,final_approve|string|max:255',
+=======
+            'dosen_saran_id' => 'required_if:tindakan,tunjuk_dosen|exists:users,id',
+            'final_dosen_pembimbing_id' => 'required_if:tindakan,final_approve|exists:users,id',
+            'judul_approved_by_kajur' => 'required_if:tindakan,final_approve|string|max:255', // Jika Kajur memilih judul final
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
         ]);
 
         $pengajuan = JudulTA::findOrFail($id);
@@ -84,6 +95,7 @@ class JudulTAController extends Controller
 
             $pengajuan->update([
                 'status' => JudulTA::STATUS_APPROVED_FOR_CONSULTATION,
+<<<<<<< HEAD
                 'catatan_kajur' => $request->catatan,
             ]);
 
@@ -97,6 +109,15 @@ class JudulTAController extends Controller
                     $dosenSaran->notify(new DosenSaranDitunjukNotification($pengajuan));
                 }
             }
+=======
+                'dosen_saran_id' => $request->dosen_saran_id,
+                'catatan_kajur' => $request->catatan,
+            ]);
+
+            $dosenSaran = User::find($request->dosen_saran_id);
+            // Perbaikan: Pastikan notifikasi dikirim jika dosen ditemukan
+
+>>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
 
             return redirect()->route('kajur.judul-ta.index')
                 ->with('success', 'Dosen Saran berhasil ditunjuk dan notifikasi telah dikirim.');
