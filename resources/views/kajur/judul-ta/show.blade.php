@@ -10,7 +10,6 @@
                 <div class="container-fluid px-4 py-4">
                     <div class="row justify-content-center">
                         <div class="col-lg-11">
-                            <!-- Card utama -->
                             <div class="card shadow border-0 rounded-3 mb-4">
                                 <div class="card-header bg-gradient-primary-to-secondary p-3">
                                     <div class="d-flex justify-content-between align-items-center">
@@ -34,7 +33,6 @@
                                         </div>
                                     @endif
 
-                                    <!-- Panel Informasi Mahasiswa -->
                                     <div class="card border-0 shadow-sm mb-4">
                                         <div class="card-header bg-light py-3">
                                             <h6 class="mb-0 fw-bold text-primary">
@@ -160,22 +158,13 @@
                                         </div>
                                     </div>
 
-<<<<<<< HEAD
                                     @if ($pengajuan->status == 'submitted')
-=======
-                                    @if ($pengajuan->status == \App\Models\JudulTA::STATUS_SUBMITTED)
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                         <div class="row g-4 mb-4">
                                             <div class="col-md-6">
                                                 <div class="card h-100 border-info shadow-sm">
                                                     <div class="card-header bg-info text-white p-3">
                                                         <h6 class="mb-0 fw-bold">
-<<<<<<< HEAD
                                                             <i class="bi bi-person-plus me-2"></i>Tunjuk Dosen Saran
-=======
-                                                            <i class="bi bi-check-circle me-2"></i>Setujui Awal & Tunjuk
-                                                            Dosen Saran
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                         </h6>
                                                     </div>
                                                     <div class="card-body p-4">
@@ -184,7 +173,6 @@
                                                             method="POST">
                                                             @csrf
                                                             <input type="hidden" name="tindakan" value="tunjuk_dosen">
-<<<<<<< HEAD
 
                                                             {{-- Dosen Saran 1 --}}
                                                             <div class="mb-3">
@@ -199,35 +187,15 @@
                                                                     @foreach ($dosen as $d)
                                                                         <option value="{{ $d->id }}"
                                                                             {{ old('dosen_saran_ids.0') == $d->id || ($pengajuan->dosenSarans->count() > 0 && $pengajuan->dosenSarans[0]->id == $d->id) ? 'selected' : '' }}>
-=======
-                                                            {{-- PENTING: Tindakan ini --}}
-
-                                                            <div class="mb-4">
-                                                                <label for="dosen_saran_id" class="form-label fw-medium">
-                                                                    Tunjuk Dosen Saran
-                                                                </label>
-                                                                <select
-                                                                    class="form-select @error('dosen_saran_id') is-invalid @enderror"
-                                                                    id="dosen_saran_id" name="dosen_saran_id" required>
-                                                                    <option value="">-- Pilih Dosen Saran --</option>
-                                                                    @foreach ($dosen as $d)
-                                                                        <option value="{{ $d->id }}"
-                                                                            {{ old('dosen_saran_id') == $d->id ? 'selected' : '' }}>
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                                             {{ $d->name }}
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
-<<<<<<< HEAD
                                                                 @error('dosen_saran_ids.0')
-=======
-                                                                @error('dosen_saran_id')
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
 
-<<<<<<< HEAD
                                                             {{-- Dosen Saran 2 --}}
                                                             <div class="mb-3">
                                                                 <label for="dosen_saran_id_2" class="form-label fw-medium">
@@ -248,40 +216,25 @@
                                                                 @error('dosen_saran_ids.1')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
-                                                                <div class="form-text">
-                                                                    <i class="bi bi-info-circle me-1"></i>
-                                                                    Anda bisa memilih satu atau dua dosen saran.
-                                                                </div>
                                                             </div>
 
                                                             <div class="mb-4">
-                                                                <label for="catatan" class="form-label fw-medium">Catatan
-                                                                    (Opsional)</label>
-                                                                <textarea class="form-control @error('catatan') is-invalid @enderror" id="catatan" name="catatan" rows="3">{{ old('catatan') }}</textarea>
-=======
-                                                            <div class="mb-4">
                                                                 <label for="catatan_kajur_tunjuk_dosen"
                                                                     class="form-label fw-medium">
-                                                                    Catatan untuk Dosen Saran (Opsional)
+                                                                    Catatan (Opsional)
                                                                 </label>
                                                                 <textarea class="form-control @error('catatan') is-invalid @enderror" id="catatan_kajur_tunjuk_dosen" name="catatan"
-                                                                    rows="3">{{ old('catatan') }}</textarea>
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
+                                                                    rows="3">{{ old('catatan', $pengajuan->catatan) }}</textarea>
                                                                 @error('catatan')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             </div>
 
                                                             <div class="d-grid gap-2">
-<<<<<<< HEAD
                                                                 <button type="submit"
                                                                     class="btn btn-info btn-lg text-white">
                                                                     <i class="bi bi-person-check me-2"></i>Tunjuk Dosen
                                                                     Saran
-=======
-                                                                <button type="submit" class="btn btn-success btn-lg">
-                                                                    <i class="bi bi-check-lg me-2"></i>Proses
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                                 </button>
                                                             </div>
                                                         </form>
@@ -302,19 +255,11 @@
                                                             method="POST">
                                                             @csrf
                                                             <input type="hidden" name="tindakan" value="tolak">
-<<<<<<< HEAD
-=======
-                                                            {{-- PENTING: Tindakan tolak --}}
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
                                                             <div class="mb-4">
                                                                 <label for="alasan_penolakan"
                                                                     class="form-label fw-medium">Alasan Penolakan</label>
-                                                                <textarea class="form-control @error('alasan_penolakan') is-invalid @enderror" id="alasan_penolakan" name="catatan"
-<<<<<<< HEAD
-                                                                    rows="5" required>{{ old('catatan') }}</textarea>
-=======
-                                                                    rows="5" required>{{ old('alasan_penolakan') }}</textarea> {{-- Gunakan name="catatan" sesuai controller --}}
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
+                                                                <textarea class="form-control @error('alasan_penolakan') is-invalid @enderror" id="alasan_penolakan"
+                                                                    name="alasan_penolakan" rows="3" required>{{ old('alasan_penolakan') }}</textarea>
                                                                 @error('alasan_penolakan')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
@@ -329,7 +274,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    @elseif ($pengajuan->status == 'approved')
+                                    @elseif ($pengajuan->status == \App\Models\JudulTA::STATUS_APPROVED)
                                         <div class="row g-4 mb-4">
                                             <div class="col-md-12">
                                                 <div class="card h-100 border-success shadow-sm">
@@ -341,32 +286,34 @@
                                                     </div>
                                                     <div class="card-body p-4">
                                                         <form
-                                                            action="{{ route('kajur.judul-ta.processSubmission', $pengajuan->id) }}"
-                                                            method="POST">
+                                                            action="{{ route('kajur.judul-ta.finalize', $pengajuan->id) }}"
+                                                            {{-- <<< UBAH RUTE ACTION DI SINI --}} method="POST">
                                                             @csrf
-                                                            <input type="hidden" name="tindakan" value="final_approve">
+                                                            {{-- Hapus hidden input tindakan karena ini akan ditangani oleh route finalize --}}
+                                                            {{-- <input type="hidden" name="tindakan" value="final_approve"> --}}
                                                             <div class="mb-3">
-                                                                <label for="judul_approved" class="form-label fw-medium">
-                                                                    Judul yang Disetujui Final
+                                                                <label for="judul_approved_select"
+                                                                    class="form-label fw-medium">
+                                                                    Pilih Judul yang Disetujui
                                                                 </label>
                                                                 <select
                                                                     class="form-select form-select-lg mb-2 @error('judul_approved_by_kajur') is-invalid @enderror"
                                                                     id="judul_approved_select"
-                                                                    name="judul_approved_by_kajur">
+                                                                    name="judul_approved_by_kajur_from_select">
                                                                     <option value="">-- Pilih dari judul yang
-                                                                        diajukan --</option>
+                                                                        diajukan atau masukkan baru --</option>
                                                                     <option value="{{ $pengajuan->judul1 }}"
-                                                                        {{ old('judul_approved_by_kajur') == $pengajuan->judul1 || $pengajuan->judul_approved == $pengajuan->judul1 ? 'selected' : '' }}>
+                                                                        {{ old('judul_approved_by_kajur_from_select', $pengajuan->judul_approved) == $pengajuan->judul1 ? 'selected' : '' }}>
                                                                         {{ $pengajuan->judul1 }}</option>
                                                                     <option value="{{ $pengajuan->judul2 }}"
-                                                                        {{ old('judul_approved_by_kajur') == $pengajuan->judul2 || $pengajuan->judul_approved == $pengajuan->judul2 ? 'selected' : '' }}>
+                                                                        {{ old('judul_approved_by_kajur_from_select', $pengajuan->judul_approved) == $pengajuan->judul2 ? 'selected' : '' }}>
                                                                         {{ $pengajuan->judul2 }}</option>
                                                                     <option value="{{ $pengajuan->judul3 }}"
-                                                                        {{ old('judul_approved_by_kajur') == $pengajuan->judul3 || $pengajuan->judul_approved == $pengajuan->judul3 ? 'selected' : '' }}>
+                                                                        {{ old('judul_approved_by_kajur_from_select', $pengajuan->judul_approved) == $pengajuan->judul3 ? 'selected' : '' }}>
                                                                         {{ $pengajuan->judul3 }}</option>
                                                                     @if ($pengajuan->judul_revisi)
                                                                         <option value="{{ $pengajuan->judul_revisi }}"
-                                                                            {{ old('judul_approved_by_kajur') == $pengajuan->judul_revisi || $pengajuan->judul_approved == $pengajuan->judul_revisi ? 'selected' : '' }}>
+                                                                            {{ old('judul_approved_by_kajur_from_select', $pengajuan->judul_approved) == $pengajuan->judul_revisi ? 'selected' : '' }}>
                                                                             {{ $pengajuan->judul_revisi }} (Revisi)
                                                                         </option>
                                                                     @endif
@@ -374,10 +321,11 @@
                                                                 <input type="text"
                                                                     class="form-control @error('judul_approved_by_kajur') is-invalid @enderror"
                                                                     id="judul_approved_manual"
-                                                                    name="judul_approved_by_kajur"
-                                                                    value="{{ old('judul_approved_by_kajur', $pengajuan->judul_approved) }}"
+                                                                    name="judul_approved_by_kajur_manual"
+                                                                    value="{{ old('judul_approved_by_kajur_manual', !in_array($pengajuan->judul_approved, [$pengajuan->judul1, $pengajuan->judul2, $pengajuan->judul3, $pengajuan->judul_revisi]) && $pengajuan->judul_approved ? $pengajuan->judul_approved : '') }}"
                                                                     placeholder="Atau masukkan judul baru secara manual">
                                                                 @error('judul_approved_by_kajur')
+                                                                    {{-- Error ini akan muncul jika kedua input kosong atau ada masalah validasi dari backend --}}
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                                 <div class="form-text">
@@ -421,32 +369,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    @endif
-
-                                    <script>
-                                        document.addEventListener('DOMContentLoaded', function() {
-                                            const judulApprovedSelect = document.getElementById('judul_approved_select');
-                                            const judulApprovedManual = document.getElementById('judul_approved_manual');
-
-                                            // Fungsi untuk mengontrol input manual berdasarkan pilihan select
-                                            function toggleManualInput() {
-                                                if (judulApprovedSelect.value === '') {
-                                                    judulApprovedManual.removeAttribute('readonly');
-                                                    judulApprovedManual.setAttribute('required', 'required'); // Atau atur sesuai kebutuhan validasi
-                                                } else {
-                                                    judulApprovedManual.setAttribute('readonly', 'readonly');
-                                                    judulApprovedManual.value = ''; // Kosongkan input manual jika memilih dari select
-                                                    judulApprovedManual.removeAttribute('required');
-                                                }
-                                            }
-
-                                            // Panggil saat halaman dimuat
-                                            toggleManualInput();
-
-                                            // Panggil setiap kali pilihan select berubah
-                                            judulApprovedSelect.addEventListener('change', toggleManualInput);
-                                        });
-                                    </script>
+                                    @endif {{-- Akhir dari @elseif ($pengajuan->status == \App\Models\JudulTA::STATUS_APPROVED) --}}
                                 </div>
                             </div>
                         </div>
@@ -461,17 +384,37 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Script untuk dropdown judul
-            const judulSelect = document.getElementById('judul_approved_select');
-            const judulInput = document.getElementById('judul_approved');
+            const judulApprovedSelect = document.getElementById('judul_approved_select');
+            const judulApprovedManual = document.getElementById('judul_approved_manual');
 
-            if (judulSelect && judulInput) {
-                judulSelect.addEventListener('change', function() {
-                    if (this.value) {
-                        judulInput.value = this.value;
+            function toggleManualInput() {
+                // Jika tidak ada pilihan di select (nilai kosong), aktifkan input manual
+                if (judulApprovedSelect.value === '') {
+                    judulApprovedManual.removeAttribute('readonly');
+                    // Atur required untuk input manual jika select kosong dan tidak ada nilai old() untuk manual
+                    if (!judulApprovedManual.value) {
+                        judulApprovedManual.setAttribute('required', 'required');
                     }
-                });
+                } else {
+                    // Jika ada pilihan di select, nonaktifkan dan kosongkan input manual
+                    judulApprovedManual.setAttribute('readonly', 'readonly');
+                    judulApprovedManual.value = '';
+                    judulApprovedManual.removeAttribute('required');
+                }
             }
+
+            // Panggil saat halaman dimuat untuk mengatur kondisi awal
+            toggleManualInput();
+
+            // Panggil setiap kali pilihan select berubah
+            judulApprovedSelect.addEventListener('change', toggleManualInput);
+
+            // Jika ada nilai old('judul_approved_by_kajur_manual'), pastikan select tidak dipilih
+            if (judulApprovedManual.value) {
+                judulApprovedSelect.value = ''; // Kosongkan select jika input manual ada nilainya
+                toggleManualInput(); // Pastikan input manual aktif
+            }
+
 
             // Auto-dismiss alerts after 5 seconds
             const alerts = document.querySelectorAll('.alert');

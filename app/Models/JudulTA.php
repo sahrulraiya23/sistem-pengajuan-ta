@@ -37,11 +37,7 @@ class JudulTA extends Model
 
     protected $fillable = [
         'user_id',
-<<<<<<< HEAD
-        // Hapus 'dosen_saran_id' dari fillable
-=======
         'dosen_saran_id',
->>>>>>> 24f6c824924eb0f2a70e988daf73bf9521758898
         'judul1',
         'judul2',
         'judul3',

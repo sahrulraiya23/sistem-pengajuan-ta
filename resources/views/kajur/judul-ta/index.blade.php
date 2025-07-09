@@ -41,17 +41,64 @@
                                             Belum ada pengajuan judul tugas akhir dari mahasiswa.
                                         </div>
                                     @else
+                                        {{-- Definisi Tabs (dibuat sekali saja di awal) --}}
+                                        @php
+                                            $tabs = [
+                                                \App\Models\JudulTA::STATUS_SUBMITTED => [
+                                                    'label' => 'Diajukan',
+                                                    'icon' => 'bi-hourglass',
+                                                ],
+                                                \App\Models\JudulTA::STATUS_APPROVED_FOR_CONSULTATION => [
+                                                    'label' => 'Menunggu Dosen Saran',
+                                                    'icon' => 'bi-chat-dots',
+                                                ],
+                                                \App\Models\JudulTA::STATUS_APPROVED => [
+                                                    'label' => 'Siap Difinalisasi',
+                                                    'icon' => 'bi-check-circle',
+                                                ],
+                                                \App\Models\JudulTA::STATUS_REVISED => [
+                                                    'label' => 'Direvisi Mahasiswa',
+                                                    'icon' => 'bi-pencil-square',
+                                                ],
+                                                \App\Models\JudulTA::STATUS_SUB => [
+                                                    'label' => 'Mahasiswa Mengajukan Revisi',
+                                                    'icon' => 'bi-arrow-repeat',
+                                                ],
+                                                \App\Models\JudulTA::STATUS_REJECTED => [
+                                                    'label' => 'Ditolak',
+                                                    'icon' => 'bi-x-circle',
+                                                ],
+                                                \App\Models\JudulTA::STATUS_FINALIZED => [
+                                                    'label' => 'Difinalisasi',
+                                                    'icon' => 'bi-lock',
+                                                ],
+                                            ];
+                                        @endphp
+
                                         {{-- TAB NAVIGATION --}}
                                         <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
-                                            @foreach (['submitted' => 'Diajukan', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'finalized' => 'Difinalisasi'] as $tabId => $label)
+                                            @foreach ($tabs as $status_key => $info)
                                                 <li class="nav-item" role="presentation">
                                                     <button
                                                         class="nav-link @if ($loop->first) active @endif"
-                                                        id="{{ $tabId }}-tab" data-bs-toggle="tab"
-                                                        data-bs-target="#{{ $tabId }}" type="button"
-                                                        role="tab" aria-controls="{{ $tabId }}"
+                                                        id="{{ $status_key }}-tab" data-bs-toggle="tab"
+                                                        data-bs-target="#{{ $status_key }}" type="button"
+                                                        role="tab" aria-controls="{{ $status_key }}"
                                                         aria-selected="{{ $loop->first ? 'true' : 'false' }}">
-                                                        {{ $label }}
+                                                        <i class="{{ $info['icon'] ?? 'bi-info-circle' }} me-1"></i>
+                                                        {{ $info['label'] }}
+                                                        @php
+                                                            // Menghitung jumlah item untuk badge di setiap tab
+                                                            $count = $pengajuan
+                                                                ->filter(function ($item) use ($status_key) {
+                                                                    return $item->status == $status_key;
+                                                                })
+                                                                ->count();
+                                                        @endphp
+                                                        @if ($count > 0)
+                                                            <span
+                                                                class="badge rounded-pill bg-primary ms-1">{{ $count }}</span>
+                                                        @endif
                                                     </button>
                                                 </li>
                                             @endforeach
@@ -59,30 +106,23 @@
 
                                         {{-- TAB CONTENT --}}
                                         <div class="tab-content" id="myTabContent">
-                                            @php
-                                                $tabs = [
-                                                    'submitted' => ['label' => 'Diajukan'],
-                                                    'approved' => ['label' => 'Disetujui'],
-                                                    'rejected' => ['label' => 'Ditolak'],
-                                                    'finalized' => ['label' => 'Difinalisasi'],
-                                                ];
-                                            @endphp
-
-                                            @foreach ($tabs as $status => $info)
+                                            @foreach ($tabs as $status_key => $info)
                                                 <div class="tab-pane fade @if ($loop->first) show active @endif"
-                                                    id="{{ $status }}" role="tabpanel"
-                                                    aria-labelledby="{{ $status }}-tab">
+                                                    id="{{ $status_key }}" role="tabpanel"
+                                                    aria-labelledby="{{ $status_key }}-tab">
                                                     @php
-                                                        // Menggunakan $pengajuan dan $item->status
-                                                        $filtered = $pengajuan->filter(function ($item) use ($status) {
-                                                            return $item->status == $status;
+                                                        // Filter koleksi $pengajuan berdasarkan status saat ini
+                                                        $filteredPengajuan = $pengajuan->filter(function ($item) use (
+                                                            $status_key,
+                                                        ) {
+                                                            return $item->status == $status_key;
                                                         });
                                                     @endphp
 
-                                                    @if ($filtered->isEmpty())
+                                                    @if ($filteredPengajuan->isEmpty())
                                                         <div class="alert alert-light text-center">
                                                             Tidak ada pengajuan dengan status
-                                                            {{ strtolower($info['label']) }}.
+                                                            **{{ strtolower($info['label']) }}**.
                                                         </div>
                                                     @else
                                                         <div class="table-responsive">
@@ -91,23 +131,111 @@
                                                                     <tr>
                                                                         <th>No</th>
                                                                         <th>Nama Mahasiswa</th>
+                                                                        <th>NIM</th>
                                                                         <th>Judul Pilihan 1</th>
+                                                                        {{-- Kolom Dosen Saran/Pembimbing disesuaikan --}}
+                                                                        <th>Dosen Terkait</th>
                                                                         <th>Tanggal Pengajuan</th>
+                                                                        <th>Status Saat Ini</th>
                                                                         <th>Aksi</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    @foreach ($filtered as $key => $item)
+                                                                    @foreach ($filteredPengajuan as $key => $item)
                                                                         <tr>
                                                                             <td>{{ $key + 1 }}</td>
                                                                             <td>{{ $item->mahasiswa->name ?? 'N/A' }}
                                                                             </td>
+                                                                            <td>{{ $item->mahasiswa->nomor_induk ?? '-' }}
+                                                                            </td>
                                                                             <td>{{ $item->judul1 }}</td>
-                                                                            <td>{{ $item->created_at->format('d M Y') }}
+                                                                            <td>
+                                                                                @if ($item->status == \App\Models\JudulTA::STATUS_FINALIZED && $item->pembimbing && $item->pembimbing->dosen)
+                                                                                    <span class="badge bg-success">
+                                                                                        <i
+                                                                                            class="bi bi-person-check me-1"></i>
+                                                                                        {{ $item->pembimbing->dosen->name }}
+                                                                                        (Pembimbing)
+                                                                                    </span>
+                                                                                @elseif($item->dosenSarans->count() > 0)
+                                                                                    @foreach ($item->dosenSarans as $dosenSaran)
+                                                                                        <span
+                                                                                            class="badge bg-info text-dark">
+                                                                                            <i
+                                                                                                class="bi bi-person-lines-fill me-1"></i>
+                                                                                            {{ $dosenSaran->name }}
+                                                                                            (Saran)
+                                                                                        </span><br>
+                                                                                    @endforeach
+                                                                                @else
+                                                                                    -
+                                                                                @endif
+                                                                            </td>
+                                                                            <td>{{ $item->created_at->format('d M Y H:i') }}
+                                                                            </td>
+                                                                            <td>
+                                                                                {{-- Menampilkan badge status --}}
+                                                                                @switch($item->status)
+                                                                                    @case(\App\Models\JudulTA::STATUS_SUBMITTED)
+                                                                                        <span
+                                                                                            class="badge bg-info rounded-pill px-3"><i
+                                                                                                class="bi bi-hourglass me-1"></i>
+                                                                                            Diajukan</span>
+                                                                                    @break
+
+                                                                                    @case(\App\Models\JudulTA::STATUS_APPROVED_FOR_CONSULTATION)
+                                                                                        <span
+                                                                                            class="badge bg-warning text-dark rounded-pill px-3"><i
+                                                                                                class="bi bi-chat-dots me-1"></i>
+                                                                                            Menunggu Dosen Saran</span>
+                                                                                    @break
+
+                                                                                    @case(\App\Models\JudulTA::STATUS_REVISED)
+                                                                                        <span
+                                                                                            class="badge bg-secondary rounded-pill px-3"><i
+                                                                                                class="bi bi-pencil-square me-1"></i>
+                                                                                            Revisi</span>
+                                                                                    @break
+
+                                                                                    @case(\App\Models\JudulTA::STATUS_SUBMIT_REVISED)
+                                                                                        <span
+                                                                                            class="badge bg-primary rounded-pill px-3"><i
+                                                                                                class="bi bi-arrow-repeat me-1"></i>
+                                                                                            Mengajukan Revisi</span>
+                                                                                    @break
+
+                                                                                    @case(\App\Models\JudulTA::STATUS_APPROVED)
+                                                                                        <span
+                                                                                            class="badge bg-success rounded-pill px-3"><i
+                                                                                                class="bi bi-check-circle me-1"></i>
+                                                                                            Disetujui Dosen Saran</span>
+                                                                                    @break
+
+                                                                                    @case(\App\Models\JudulTA::STATUS_REJECTED)
+                                                                                        <span
+                                                                                            class="badge bg-danger rounded-pill px-3"><i
+                                                                                                class="bi bi-x-circle me-1"></i>
+                                                                                            Ditolak</span>
+                                                                                    @break
+
+                                                                                    @case(\App\Models\JudulTA::STATUS_FINALIZED)
+                                                                                        <span
+                                                                                            class="badge bg-dark rounded-pill px-3"><i
+                                                                                                class="bi bi-lock me-1"></i>
+                                                                                            Difinalisasi</span>
+                                                                                    @break
+
+                                                                                    @default
+                                                                                        <span
+                                                                                            class="badge bg-light text-secondary rounded-pill px-3">{{ $item->status }}</span>
+                                                                                @endswitch
                                                                             </td>
                                                                             <td>
                                                                                 <a href="{{ route('kajur.judul-ta.show', $item->id) }}"
-                                                                                    class="btn btn-sm btn-info">Detail</a>
+                                                                                    class="btn btn-sm btn-info text-white">
+                                                                                    <i class="bi bi-eye me-1"></i>
+                                                                                    Detail
+                                                                                </a>
                                                                             </td>
                                                                         </tr>
                                                                     @endforeach
@@ -130,6 +258,18 @@
     </div>
 
     @include('template.script')
+    {{-- Script untuk auto-dismiss alerts --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(function(alert) {
+                setTimeout(function() {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }, 5000); // Alert akan hilang setelah 5 detik
+            });
+        });
+    </script>
 </body>
 
 </html>
