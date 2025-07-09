@@ -289,6 +289,8 @@
                                                             action="{{ route('kajur.judul-ta.finalize', $pengajuan->id) }}"
                                                             {{-- <<< UBAH RUTE ACTION DI SINI --}} method="POST">
                                                             @csrf
+                                                            @method('PUT')
+
                                                             {{-- Hapus hidden input tindakan karena ini akan ditangani oleh route finalize --}}
                                                             {{-- <input type="hidden" name="tindakan" value="final_approve"> --}}
                                                             <div class="mb-3">
@@ -335,25 +337,69 @@
                                                                 </div>
                                                             </div>
 
+
+
+                                                            @php
+                                                                // Ambil data pembimbing 1 yang sudah ada (jika ada) dengan aman
+                                                                $pembimbing1 = optional(
+                                                                    optional($pengajuan)->pembimbings,
+                                                                )
+                                                                    ->where('tipe_pembimbing', 'pembimbing_1')
+                                                                    ->first();
+                                                                $dosen1_id = optional($pembimbing1)->dosen_id;
+                                                            @endphp
                                                             <div class="mb-4">
-                                                                <label for="final_dosen_pembimbing_id"
+                                                                <label for="dosen_pembimbing_1_id"
                                                                     class="form-label fw-medium">
-                                                                    Dosen Pembimbing Utama
+                                                                    Dosen Pembimbing 1
                                                                 </label>
                                                                 <select
-                                                                    class="form-select @error('final_dosen_pembimbing_id') is-invalid @enderror"
-                                                                    id="final_dosen_pembimbing_id"
-                                                                    name="final_dosen_pembimbing_id" required>
-                                                                    <option value="">-- Pilih Dosen Pembimbing --
+                                                                    class="form-select @error('dosen_pembimbing_1_id') is-invalid @enderror"
+                                                                    id="dosen_pembimbing_1_id"
+                                                                    name="dosen_pembimbing_1_id" required>
+                                                                    <option value="">-- Pilih Dosen Pembimbing 1 --
                                                                     </option>
                                                                     @foreach ($dosen as $d)
                                                                         <option value="{{ $d->id }}"
-                                                                            {{ old('final_dosen_pembimbing_id', optional($pengajuan->pembimbing)->dosen_id) == $d->id ? 'selected' : '' }}>
+                                                                            {{ old('dosen_pembimbing_1_id', $dosen1_id) == $d->id ? 'selected' : '' }}>
                                                                             {{ $d->name }}
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
-                                                                @error('final_dosen_pembimbing_id')
+                                                                @error('dosen_pembimbing_1_id')
+                                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                                @enderror
+                                                            </div>
+
+                                                            {{-- Dosen Pembimbing 2 --}}
+                                                            @php
+                                                                // Ambil data pembimbing 2 yang sudah ada (jika ada) dengan aman
+                                                                $pembimbing2 = optional(
+                                                                    optional($pengajuan)->pembimbings,
+                                                                )
+                                                                    ->where('tipe_pembimbing', 'pembimbing_2')
+                                                                    ->first();
+                                                                $dosen2_id = optional($pembimbing2)->dosen_id;
+                                                            @endphp
+                                                            <div class="mb-4">
+                                                                <label for="dosen_pembimbing_2_id"
+                                                                    class="form-label fw-medium">
+                                                                    Dosen Pembimbing 2
+                                                                </label>
+                                                                <select
+                                                                    class="form-select @error('dosen_pembimbing_2_id') is-invalid @enderror"
+                                                                    id="dosen_pembimbing_2_id"
+                                                                    name="dosen_pembimbing_2_id" required>
+                                                                    <option value="">-- Pilih Dosen Pembimbing 2 --
+                                                                    </option>
+                                                                    @foreach ($dosen as $d)
+                                                                        <option value="{{ $d->id }}"
+                                                                            {{ old('dosen_pembimbing_2_id', $dosen2_id) == $d->id ? 'selected' : '' }}>
+                                                                            {{ $d->name }}
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                                @error('dosen_pembimbing_2_id')
                                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                                 @enderror
                                                             </div>

@@ -54,9 +54,9 @@ class JudulTA extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function pembimbing()
+    public function pembimbings()
     {
-        return $this->hasOne(DosenPembimbing::class, 'judul_ta_id');
+        return $this->hasMany(DosenPembimbing::class, 'judul_ta_id');
     }
 
     public function revisi()

@@ -28,8 +28,8 @@ class JudulTAController extends Controller
         }
 
         // Ambil pengajuan yang statusnya 'submitted' (awal) atau 'approved' (dari dosen saran, siap finalisasi)
-        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbing.dosen'])
-            ->whereIn('status', [JudulTA::STATUS_SUBMITTED, JudulTA::STATUS_APPROVED_FOR_CONSULTATION]) // Sesuaikan status yang ingin ditampilkan di index Kajur
+        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbings.dosen'])
+            ->whereIn('status', [JudulTA::STATUS_SUBMITTED, JudulTA::STATUS_APPROVED_FOR_CONSULTATION, JudulTA::STATUS_APPROVED]) // Sesuaikan status yang ingin ditampilkan di index Kajur
             ->latest()
             ->get();
 
@@ -49,7 +49,7 @@ class JudulTAController extends Controller
             }
         }
 
-        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbing.dosen'])->findOrFail($id);
+        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbings.dosen'])->findOrFail($id);
 
         // Ambil daftar semua dosen (User dengan role 'dosen') untuk ditampilkan di form
         $dosen = User::where('role', 'dosen')->get();
@@ -121,50 +121,65 @@ class JudulTAController extends Controller
     /**
      * Memfinalisasi persetujuan judul dan menetapkan dosen pembimbing utama.
      */
+    // In your Controller, e.g., KajurController.php
+
     public function finalize(Request $request, $id)
     {
         $judulTA = JudulTA::findOrFail($id);
 
-        // Menggunakan transaksi database untuk memastikan semua operasi berhasil atau tidak sama sekali
+        // Menggunakan transaksi database untuk memastikan semua operasi berhasil
         return DB::transaction(function () use ($request, $judulTA, $id) {
-            // --- Logika Validasi dan Finalisasi ---
-            $validated = $request->validate([
-                'judul_approved_by_kajur_from_select' => 'nullable|string|max:500',
-                'judul_approved_by_kajur_manual' => 'nullable|string|max:500',
-                'final_dosen_pembimbing_id' => 'required|exists:users,id',
-            ]);
+            // --- Validasi Input ---
+            $validated = $request->validate(
+                [
+                    'judul_approved_by_kajur_from_select' => 'nullable|string|max:500',
+                    'judul_approved_by_kajur_manual' => 'nullable|string|max:500',
+                    // Validasi untuk dua dosen pembimbing
+                    'dosen_pembimbing_1_id' => 'required|exists:users,id',
+                    'dosen_pembimbing_2_id' => 'required|exists:users,id|different:dosen_pembimbing_1_id',
+                ],
+                [
+                    'dosen_pembimbing_2_id.different' => 'Dosen Pembimbing 2 tidak boleh sama dengan Dosen Pembimbing 1.',
+                ]
+            );
 
-            $approvedTitle = $validated['judul_approved_by_kajur_from_select'];
+            $approvedTitle = $validated['judul_approved_by_kajur_from_select'] ?? $validated['judul_approved_by_kajur_manual'];
+
             if (empty($approvedTitle)) {
-                $approvedTitle = $validated['judul_approved_by_kajur_manual'];
+                return back()->withErrors(['judul_approved_by_kajur' => 'Judul yang disetujui harus diisi.'])->withInput();
             }
 
-            if (empty($approvedTitle)) {
-                return back()->withErrors(['judul_approved_by_kajur' => 'Judul yang disetujui harus diisi, baik dari pilihan maupun input manual.'])->withInput();
-            }
-
+            // Simpan judul dan status
             $judulTA->judul_approved = $approvedTitle;
             $judulTA->status = JudulTA::STATUS_FINALIZED;
             $judulTA->save();
 
-            $judulTA->pembimbing()->updateOrCreate(
-                ['judul_ta_id' => $judulTA->id],
-                [
-                    'dosen_id' => $validated['final_dosen_pembimbing_id'],
-                    'tipe_pembimbing' => 'utama',
-                ]
-            );
+            // --- AWAL PERUBAHAN PENTING ---
+            // Menghapus logika ->pembimbing()->updateOrCreate() yang lama
+            // dan menggantinya dengan yang baru.
+
+            // 1. Hapus data pembimbing yang lama untuk pengajuan ini
+            $judulTA->pembimbings()->delete();
+
+            // 2. Simpan Dosen Pembimbing 1
+            $judulTA->pembimbings()->create([
+                'dosen_id' => $validated['dosen_pembimbing_1_id'],
+                'tipe_pembimbing' => 'pembimbing_1',
+            ]);
+
+            // 3. Simpan Dosen Pembimbing 2
+            $judulTA->pembimbings()->create([
+                'dosen_id' => $validated['dosen_pembimbing_2_id'],
+                'tipe_pembimbing' => 'pembimbing_2',
+            ]);
+            // --- AKHIR PERUBAHAN PENTING ---
 
             // --- Logika Pembuatan Surat Tugas ---
             $nomorSurat = 'TA/' . date('Y') . '/' . date('m') . '/' . $judulTA->id;
             SuratTA::updateOrCreate(
                 ['judul_ta_id' => $id],
-                [
-                    'nomor_surat' => $nomorSurat,
-                    'tanggal_terbit' => now(),
-                ]
+                ['nomor_surat' => $nomorSurat, 'tanggal_terbit' => now()]
             );
-            // --- Akhir Logika Pembuatan Surat Tugas ---
 
             // Kirim notifikasi ke mahasiswa
             $judulTA->mahasiswa->notify(new JudulDiterimaNotification($judulTA));
