@@ -13,23 +13,42 @@ class SuratController extends Controller
 {
     public function show($id)
     {
-        // Debug 1: Periksa apakah JudulTA ditemukan
-        $pengajuan = JudulTA::with(['mahasiswa', 'pembimbing.dosen'])->find($id); // Gunakan find() daripada findOrFail() sementara untuk debugging
-        if (!$pengajuan) {
-            dd("Error: Judul TA dengan ID {$id} tidak ditemukan.");
-        }
-        dd('Judul TA ditemukan:', $pengajuan); // Periksa isi $pengajuan
+        // 1. Cari data SuratTA berdasarkan ID yang dikirim dari tombol.
+        // Gunakan findOrFail untuk otomatis menampilkan halaman 404 jika ID tidak ditemukan.
+        $surat = SuratTA::findOrFail($id);
 
-        // Debug 2: Periksa apakah SuratTA ditemukan
-        $surat = SuratTA::where('judul_ta_id', $id)->first();
-        if (!$surat) {
-            dd("Error: Surat TA untuk judul TA ID {$id} tidak ditemukan."); // Jika ini yang muncul, berarti suratnya belum ada di tabel surat_ta
-        }
-        dd('Surat TA ditemukan:', $surat); // Periksa isi $surat
+        // 2. Ambil data JudulTA yang berelasi dengan SuratTA yang ditemukan.
+        // Kita juga memuat relasi mahasiswa dan pembimbing dosen untuk ditampilkan di view.
+        $pengajuan = JudulTA::with(['mahasiswa', 'pembimbings.dosen'])->findOrFail($surat->judul_ta_id);
 
-        // Jika sampai sini, artinya data sudah lengkap dan siap di-render view.
-        // Jika masih error "not found", masalahnya di file view mahasiswa.surat.show.blade.php
+        // 3. Tampilkan view dengan data yang sudah benar.
+        // Variabel $pengajuan dan $surat sekarang sudah berisi data yang benar dan siap digunakan.
         return view('mahasiswa.surat.show', compact('pengajuan', 'surat'));
+    }
+    public function downloadPDF($id)
+    {
+        // 1. Ambil data pengajuan dan relasinya berdasarkan ID JudulTA
+        $pengajuan = JudulTA::with(['mahasiswa', 'pembimbings.dosen'])->findOrFail($id);
+
+        // 2. Ambil data surat yang terkait
+        $surat = SuratTA::where('judul_ta_id', $id)->first();
+
+        // 3. Jika surat belum ada, kembalikan dengan pesan error
+        if (!$surat) {
+            return redirect()->route('mahasiswa.judul-ta.show', $id)
+                ->with('error', 'Surat tugas akhir belum tersedia untuk diunduh.');
+        }
+
+        // 4. Load view untuk PDF dengan data yang diperlukan
+        // Pastikan Anda memiliki file view di 'resources/views/mahasiswa/surat/pdf_view.blade.php'
+        $pdf = Pdf::loadView('mahasiswa.surat.pdf_view', compact('pengajuan', 'surat'));
+        $pdf->setPaper('a4', 'portrait');
+
+        // 5. Buat nama file yang akan diunduh
+        $fileName = 'Surat_Tugas_TA_' . ($pengajuan->mahasiswa->nomor_induk ?? $pengajuan->mahasiswa->id) . '.pdf';
+
+        // 6. Langsung unduh file PDF di browser
+        return $pdf->stream($fileName);
     }
 
     // public function downloadPDF($id)

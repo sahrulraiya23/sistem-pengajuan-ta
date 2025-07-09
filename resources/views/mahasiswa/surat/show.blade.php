@@ -164,15 +164,19 @@
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td class="text-center">
-                        @if ($pengajuan->pembimbing && $pengajuan->pembimbing->dosen)
-                            {{ $pengajuan->pembimbing->dosen->name }}
-                        @else
-                            -
-                        @endif
-                    </td>
-                </tr>
+                @forelse ($pengajuan->pembimbings as $p)
+                    <tr>
+                        <td class="text-center">
+                            {{-- Tampilkan nama dosen dari setiap item pembimbing --}}
+                            {{ $p->dosen->name ?? '-' }}
+                        </td>
+                    </tr>
+                @empty
+                    {{-- Tampilkan ini jika tidak ada data pembimbing --}}
+                    <tr>
+                        <td class="text-center">-</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
         <div class="row tanda-tangan">
