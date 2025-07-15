@@ -20,107 +20,119 @@
 
         <div id="layoutSidenav_content">
             <main>
-                <div class="container-fluid px-4 mt-4">
-                    <div class="row justify-content-center">
-                        <div class="col-12">
-                            <div class="card shadow-sm">
-                                <div class="card-header">
-                                    <h5 class="mb-0">Daftar Pengajuan Judul Tugas Akhir</h5>
-                                </div>
-                                <div class="card-body">
-                                    @if (session('success'))
-                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                            {{ session('success') }}
-                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
-                                                aria-label="Close"></button>
-                                        </div>
-                                    @endif
-
-                                    @if ($pengajuan->isEmpty())
-                                        <div class="alert alert-info text-center">
-                                            Belum ada pengajuan judul tugas akhir dari mahasiswa.
-                                        </div>
-                                    @else
-                                        {{-- TAB NAVIGATION --}}
-                                        <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
-                                            @foreach (['submitted' => 'Diajukan', 'approved' => 'Disetujui', 'rejected' => 'Ditolak', 'finalized' => 'Difinalisasi'] as $tabId => $label)
-                                                <li class="nav-item" role="presentation">
-                                                    <button
-                                                        class="nav-link @if ($loop->first) active @endif"
-                                                        id="{{ $tabId }}-tab" data-bs-toggle="tab"
-                                                        data-bs-target="#{{ $tabId }}" type="button"
-                                                        role="tab" aria-controls="{{ $tabId }}"
-                                                        aria-selected="{{ $loop->first ? 'true' : 'false' }}">
-                                                        {{ $label }}
-                                                    </button>
-                                                </li>
-                                            @endforeach
-                                        </ul>
-
-                                        {{-- TAB CONTENT --}}
-                                        <div class="tab-content" id="myTabContent">
-                                            @php
-                                                $tabs = [
-                                                    'submitted' => ['label' => 'Diajukan'],
-                                                    'approved' => ['label' => 'Disetujui'],
-                                                    'rejected' => ['label' => 'Ditolak'],
-                                                    'finalized' => ['label' => 'Difinalisasi'],
-                                                ];
-                                            @endphp
-
-                                            @foreach ($tabs as $status => $info)
-                                                <div class="tab-pane fade @if ($loop->first) show active @endif"
-                                                    id="{{ $status }}" role="tabpanel"
-                                                    aria-labelledby="{{ $status }}-tab">
-                                                    @php
-                                                        // Menggunakan $pengajuan dan $item->status
-                                                        $filtered = $pengajuan->filter(function ($item) use ($status) {
-                                                            return $item->status == $status;
-                                                        });
-                                                    @endphp
-
-                                                    @if ($filtered->isEmpty())
-                                                        <div class="alert alert-light text-center">
-                                                            Tidak ada pengajuan dengan status
-                                                            {{ strtolower($info['label']) }}.
-                                                        </div>
-                                                    @else
-                                                        <div class="table-responsive">
-                                                            <table class="table table-striped table-hover">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>No</th>
-                                                                        <th>Nama Mahasiswa</th>
-                                                                        <th>Judul Pilihan 1</th>
-                                                                        <th>Tanggal Pengajuan</th>
-                                                                        <th>Aksi</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    @foreach ($filtered as $key => $item)
-                                                                        <tr>
-                                                                            <td>{{ $key + 1 }}</td>
-                                                                            <td>{{ $item->mahasiswa->name ?? 'N/A' }}
-                                                                            </td>
-                                                                            <td>{{ $item->judul1 }}</td>
-                                                                            <td>{{ $item->created_at->format('d M Y') }}
-                                                                            </td>
-                                                                            <td>
-                                                                                <a href="{{ route('kajur.judul-ta.show', $item->id) }}"
-                                                                                    class="btn btn-sm btn-info">Detail</a>
-                                                                            </td>
-                                                                        </tr>
-                                                                    @endforeach
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @endif
+                <header class="page-header page-header-dark bg-gradient-primary-to-secondary pb-10">
+                    <div class="container-xl px-4">
+                        <div class="page-header-content pt-4">
+                            <div class="row align-items-center justify-content-between">
+                                <div class="col-auto mt-4">
+                                    <h1 class="page-header-title">
+                                        <div class="page-header-icon"><i data-feather="file-text"></i></div>
+                                        Daftar Pengajuan Judul
+                                    </h1>
+                                    <div class="page-header-subtitle">Kelola semua pengajuan judul tugas akhir dari
+                                        mahasiswa.</div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </header>
+
+                <div class="container-xl px-4 mt-n10">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            {{-- FORM FILTER --}}
+                            <form method="GET" action="{{ route('kajur.judul-ta.index') }}">
+                                <div class="row g-3 align-items-center mb-4">
+                                    <div class="col-md-4">
+                                        <label for="status" class="form-label">Filter berdasarkan Status:</label>
+                                        <select name="status" id="status" class="form-select">
+                                            <option value="">Semua Status</option>
+                                            <option value="pending"
+                                                {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                                            <option value="approved"
+                                                {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui
+                                            </option>
+                                            <option value="rejected"
+                                                {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                                            <option value="revision"
+                                                {{ request('status') == 'revision' ? 'selected' : '' }}>Revisi</option>
+                                            <option value="finalized"
+                                                {{ request('status') == 'finalized' ? 'selected' : '' }}>Difinalisasi
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="search" class="form-label">Cari berdasarkan Nama
+                                            Mahasiswa:</label>
+                                        <input type="text" name="search" id="search" class="form-control"
+                                            placeholder="Masukkan nama mahasiswa..." value="{{ request('search') }}">
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <hr />
+                            {{-- AKHIR FORM FILTER --}}
+
+                            @if (session('success'))
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    {{ session('success') }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                        aria-label="Close"></button>
+                                </div>
+                            @endif
+
+                            @if ($pengajuan->isEmpty())
+                                <div class="alert alert-info text-center">
+                                    Tidak ada pengajuan yang cocok dengan kriteria filter Anda.
+                                </div>
+                            @else
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Nama Mahasiswa</th>
+                                                <th>Judul Pilihan 1</th>
+                                                <th>Tanggal Pengajuan</th>
+                                                <th>Status</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($pengajuan as $key => $item)
+                                                <tr>
+                                                    <td>{{ $key + 1 }}</td>
+                                                    <td>{{ $item->mahasiswa->name ?? 'N/A' }}</td>
+                                                    <td>{{ $item->judul1 }}</td>
+                                                    <td>{{ $item->created_at->format('d M Y') }}</td>
+                                                    <td>
+                                                        @if ($item->status == 'pending' || $item->status == 'submitted')
+                                                            <span class="badge bg-warning">Menunggu</span>
+                                                        @elseif($item->status == 'approved')
+                                                            <span class="badge bg-success">Disetujui</span>
+                                                        @elseif($item->status == 'rejected')
+                                                            <span class="badge bg-danger">Ditolak</span>
+                                                        @elseif($item->status == 'finalized')
+                                                            <span class="badge bg-primary">Difinalisasi</span>
+                                                        @elseif($item->status == 'revision')
+                                                            <span class="badge bg-info">Revisi</span>
+                                                        @else
+                                                            <span
+                                                                class="badge bg-secondary">{{ ucfirst($item->status) }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('kajur.judul-ta.show', $item->id) }}"
+                                                            class="btn btn-sm btn-info">Detail</a>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

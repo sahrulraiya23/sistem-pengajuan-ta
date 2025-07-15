@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+// Hapus 'use App\Providers\RouteServiceProvider;' jika tidak digunakan di tempat lain
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,24 +25,23 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Panggil method authenticate dari LoginRequest
         $request->authenticate();
 
+        // Regenerasi session
         $request->session()->regenerate();
 
-        // Get the authenticated user's role and redirect accordingly
-        $user = Auth::user();
-        switch ($user->role) {
-            case 'mahasiswa':
-                return redirect()->route('mahasiswa.judul-ta.index');
-            case 'dosen':
-                return redirect()->route('dosen.bimbingan.index');
-            case 'kajur':
-                return redirect()->route('kajur.judul-ta.index');
-            case 'admin':
-                return redirect()->route('admin.dashboard');
-            default:
-                return redirect()->route('login');
-        }
+        // Redirect ke halaman yang sesuai setelah login
+        $user = $request->user();
+        $redirect_url = match ($user->role) {
+            'admin' => '/admin',
+            'dosen' => route('dosen.bimbingan.index'),
+            'mahasiswa' => route('mahasiswa.judul-ta.index'),
+            'kajur' => route('kajur.judul-ta.index'),
+            default => '/', // Diubah dari RouteServiceProvider::HOME
+        };
+
+        return redirect()->intended($redirect_url);
     }
 
     /**
@@ -52,7 +52,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

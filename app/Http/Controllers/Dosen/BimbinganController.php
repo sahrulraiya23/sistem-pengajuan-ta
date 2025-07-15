@@ -28,46 +28,58 @@ class BimbinganController extends Controller
      * Menampilkan daftar pengajuan judul TA yang relevan untuk dosen yang login.
      * Dosen bisa menjadi dosen saran atau dosen pembimbing.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Tandai notifikasi dosen saran yang ditunjuk sebagai telah dibaca (jika ada)
-        // Notifikasi ini datang dari Kajur ke Dosen, jadi relevan di sini.
-        if (Auth::user()) { // Selalu cek Auth::user() sebelum menggunakannya
+        // 1. Logika Notifikasi (dipertahankan dari kode Anda)
+        if (Auth::user()) {
             Auth::user()->unreadNotifications
                 ->where('type', 'App\Notifications\DosenSaranDitunjukNotification')
                 ->markAsRead();
-            // Jika ada notifikasi lain untuk dosen di halaman index, bisa ditambahkan di sini
         }
 
-        $userDosen = Auth::user(); // Dapatkan user (dosen) yang sedang login
+        $dosenId = Auth::id();
 
-        // Mengambil pengajuan di mana dosen yang login adalah salah satu dosen saran
-        $pengajuanSebagaiDosenSaran = JudulTA::whereHas('dosenSarans', function ($query) use ($userDosen) {
-            $query->where('user_id', $userDosen->id); // Sesuaikan dengan foreign key di tabel pivot
-        })
-            ->with('mahasiswa') // Eager load relasi mahasiswa untuk performa
-            ->whereIn('status', [
-                JudulTA::STATUS_APPROVED_FOR_CONSULTATION, // Menunggu dosen saran memberikan feedback awal
-                JudulTA::STATUS_REVISED,                    // Setelah dosen saran memberikan feedback, mahasiswa sedang merevisi
-                JudulTA::STATUS_SUBMIT_REVISED              // Mahasiswa mengajukan kembali ke dosen saran
-            ])
-            ->latest()
-            ->get();
+        // 2. Membangun SATU QUERY Tunggal yang Efisien
+        //    Asumsi: relasi pada model JudulTA Anda bernama 'pembimbings' (plural)
+        $query = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbings'])
+            ->where(function ($q) use ($dosenId) {
+                // Kondisi A: Dosen ini adalah salah satu Dosen Saran
+                $q->whereHas('dosenSarans', function ($subq) use ($dosenId) {
+                    $subq->where('user_id', $dosenId); // Sesuaikan foreign key jika perlu
+                })
+                    // ATAU Kondisi B: Dosen ini adalah salah satu Dosen Pembimbing
+                    ->orWhereHas('pembimbings', function ($subq) use ($dosenId) {
+                        $subq->where('dosen_id', $dosenId); // Sesuaikan foreign key jika perlu
+                    });
+            })
+            ->latest();
 
-        // Mengambil pengajuan di mana dosen yang login adalah dosen pembimbing utama
-        $pengajuanSebagaiDosenPembimbing = JudulTA::whereHas('pembimbing', function ($query) use ($userDosen) {
-            $query->where('dosen_id', $userDosen->id); // Sesuaikan dengan foreign key di tabel dosen_pembimbing
-        })
-            ->with('mahasiswa') // Eager load relasi mahasiswa untuk performa
-            ->where('status', JudulTA::STATUS_FINALIZED) // Hanya judul yang sudah difinalisasi akan memiliki pembimbing
-            ->latest()
-            ->get();
+        // 3. Menerapkan FILTER dari Request (INI BAGIAN KUNCI YANG DIPERBAIKI)
+        // Filter berdasarkan pencarian nama mahasiswa
+        if ($request->filled('search')) {
+            $query->whereHas('mahasiswa', function ($q_mhs) use ($request) {
+                $q_mhs->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
 
-        // Gabungkan kedua koleksi (jika ada overlap, Eloquent akan menanganinya)
-        $bimbingan = $pengajuanSebagaiDosenSaran->merge($pengajuanSebagaiDosenPembimbing)->unique('id')->sortByDesc('created_at');
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            // Jika dosen memilih status dari dropdown, filter akan dijalankan pada query
+            $query->where('status', $request->status);
+        } else {
+            // Jika tidak ada filter, tampilkan status default yang relevan untuk kedua peran
+            $query->whereIn('status', [
+                JudulTA::STATUS_APPROVED_FOR_CONSULTATION,
+                JudulTA::STATUS_REVISED,
+                JudulTA::STATUS_SUBMIT_REVISED,
+                JudulTA::STATUS_FINALIZED,
+            ]);
+        }
 
+        // 4. Eksekusi Query dan Kirim ke View
+        $pengajuan = $query->get();
 
-        return view('dosen.bimbingan.index', ['pengajuan' => $bimbingan]);
+        return view('dosen.bimbingan.index', compact('pengajuan'));
     }
 
     /**
@@ -90,7 +102,7 @@ class BimbinganController extends Controller
         $userDosen = Auth::user();
 
         // Muat pengajuan beserta relasi yang dibutuhkan untuk tampilan detail
-        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbing.dosen'])->findOrFail($id);
+        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbings.dosen'])->findOrFail($id);
 
         // Cek apakah dosen yang sedang login adalah salah satu dosen saran yang ditunjuk
         $isDosenSaran = $pengajuan->dosenSarans->contains('id', $userDosen->id);

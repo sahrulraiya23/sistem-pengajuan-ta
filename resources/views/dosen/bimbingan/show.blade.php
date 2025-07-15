@@ -61,7 +61,7 @@
                                                 </tr>
                                                 <tr>
                                                     <th>NIM</th>
-                                                    <td>{{ $pengajuan->mahasiswa->nim ?? '-' }}</td>
+                                                    <td>{{ $pengajuan->mahasiswa->nomor_induk ?? '-' }}</td>
                                                 </tr>
                                             </table>
                                         </div>

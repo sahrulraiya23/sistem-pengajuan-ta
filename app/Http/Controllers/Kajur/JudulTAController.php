@@ -19,42 +19,42 @@ class JudulTAController extends Controller
 {
     /**
      * Menampilkan daftar semua pengajuan judul yang menunggu tindakan Kajur.
-     */
-    public function index()
+     */ public function index(Request $request)
     {
-        // Menandai semua notifikasi terkait pengajuan sebagai "telah dibaca"
+        // Menandai notifikasi sebagai "telah dibaca" (logika Anda dipertahankan)
         if (Auth::user()) {
             Auth::user()->unreadNotifications->where('type', 'App\Notifications\JudulSubmittedNotification')->markAsRead();
         }
 
-        // Ambil pengajuan yang statusnya 'submitted' (awal) atau 'approved' (dari dosen saran, siap finalisasi)
-        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbings.dosen'])
-            ->whereIn('status', [JudulTA::STATUS_SUBMITTED, JudulTA::STATUS_APPROVED_FOR_CONSULTATION, JudulTA::STATUS_APPROVED]) // Sesuaikan status yang ingin ditampilkan di index Kajur
-            ->latest()
-            ->get();
+        // Memulai query dengan eager loading dan urutan terbaru
+        $query = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbings.dosen'])->latest();
 
-        return view('kajur.judul-ta.index', compact('pengajuan'));
-    }
-
-    /**
-     * Menampilkan detail satu pengajuan judul.
-     */
-    public function show(Request $request, $id)
-    {
-        // Logika untuk menandai notifikasi spesifik sebagai terbaca
-        if ($request->has('notification_id') && Auth::user()) {
-            $notification = Auth::user()->unreadNotifications->where('id', $request->notification_id)->first();
-            if ($notification) {
-                $notification->markAsRead();
-            }
+        // 1. Terapkan filter pencarian NAMA MAHASISWA jika ada
+        if ($request->filled('search')) {
+            $query->whereHas('mahasiswa', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
         }
 
-        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbings.dosen'])->findOrFail($id);
+        // 2. Terapkan filter STATUS, atau gunakan tampilan default
+        if ($request->filled('status')) {
+            // Jika Kajur memilih status dari dropdown, filter berdasarkan itu
+            $query->where('status', $request->status);
+        } else {
+            // Jika TIDAK ada filter status yang dipilih, tampilkan daftar default untuk Kajur
+            // (Logika asli Anda dipertahankan sebagai default view)
+            $query->whereIn('status', [
+                JudulTA::STATUS_SUBMITTED,
+                JudulTA::STATUS_APPROVED_FOR_CONSULTATION,
+                JudulTA::STATUS_APPROVED,
+                JudulTA::STATUS_FINALIZED
+            ]);
+        }
 
-        // Ambil daftar semua dosen (User dengan role 'dosen') untuk ditampilkan di form
-        $dosen = User::where('role', 'dosen')->get();
+        // Eksekusi query setelah semua kondisi diterapkan
+        $pengajuan = $query->get();
 
-        return view('kajur.judul-ta.show', compact('pengajuan', 'dosen'));
+        return view('kajur.judul-ta.index', compact('pengajuan'));
     }
 
     /**

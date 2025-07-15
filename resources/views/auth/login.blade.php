@@ -14,11 +14,12 @@
                 <form class="space-y-4 md:space-y-6" method="POST" action="{{ route('login') }}">
                     @csrf
 
+                    {{-- Blok Nomor Induk yang Baru --}}
                     <div>
-                        <x-input-label for="email" value="Email" />
-                        <x-text-input id="email" class="block mt-1 w-full" type="email" name="email"
-                            :value="old('email')" required autofocus />
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        <x-input-label for="nomor_induk" value="Nomor Induk (NIM/NIDN)" />
+                        <x-text-input id="nomor_induk" class="block mt-1 w-full" type="text" name="nomor_induk"
+                            :value="old('nomor_induk')" required autofocus />
+                        <x-input-error :messages="$errors->get('nomor_induk')" class="mt-2" />
                     </div>
 
                     <div>

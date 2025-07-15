@@ -8,8 +8,6 @@
         </div>
     </header>
 
-
-
     <div class="container-xl px-4">
         <h2 class="mt-5 mb-0">Dashboards</h2>
         <p>Three dashboard examples to get you started!</p>
@@ -58,14 +56,19 @@
                                                     <td>{{ $key + 1 }}</td>
                                                     <td>{{ $item->judul1 }}</td>
                                                     <td>
-                                                        @if ($item->status == 'submitted')
-                                                            <span class="badge bg-info">Diajukan</span>
+                                                        @if ($item->status == 'submitted' || $item->status == 'pending')
+                                                            <span class="badge bg-warning">Menunggu</span>
                                                         @elseif($item->status == 'approved')
                                                             <span class="badge bg-success">Disetujui</span>
                                                         @elseif($item->status == 'rejected')
                                                             <span class="badge bg-danger">Ditolak</span>
                                                         @elseif($item->status == 'finalized')
                                                             <span class="badge bg-primary">Difinalisasi</span>
+                                                        @elseif($item->status == 'revision')
+                                                            <span class="badge bg-info">Revisi</span>
+                                                        @else
+                                                            <span
+                                                                class="badge bg-secondary">{{ ucfirst($item->status) }}</span>
                                                         @endif
                                                     </td>
                                                     <td>{{ $item->created_at->format('d M Y') }}</td>
@@ -85,6 +88,4 @@
             </div>
         </div>
     </div>
-
-
 </main>
