@@ -47,6 +47,8 @@ class JudulTA extends Model
         'alasan_penolakan',
         'catatan_kajur',
         'catatan_dosen_saran',
+        'file_pendukung1', // Tambahkan ini
+        'file_pendukung2',
     ];
 
     public function mahasiswa()

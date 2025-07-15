@@ -14,6 +14,7 @@ use App\Models\User; // Pastikan ini diimpor
 use App\Notifications\PengajuanJudulNotification; // Untuk notifikasi ke Kajur
 use App\Notifications\ReSubmissionToDosenNotification; // Notifikasi ke Dosen Saran
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 
 class JudulTAController extends Controller
 {
@@ -37,14 +38,28 @@ class JudulTAController extends Controller
             'judul1' => 'required|string|max:255',
             'judul2' => 'required|string|max:255',
             'judul3' => 'required|string|max:255',
+            'file_pendukung1' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // Tambahkan validasi untuk file
+            'file_pendukung2' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // Tambahkan validasi untuk file
         ]);
+
+        $filePendukung1Path = null;
+        if ($request->hasFile('file_pendukung1')) {
+            $filePendukung1Path = $request->file('file_pendukung1')->store('files_pendukung', 'public');
+        }
+
+        $filePendukung2Path = null;
+        if ($request->hasFile('file_pendukung2')) {
+            $filePendukung2Path = $request->file('file_pendukung2')->store('files_pendukung', 'public');
+        }
 
         $judulTA = JudulTA::create([
             'user_id' => Auth::id(),
             'judul1' => $request->judul1,
             'judul2' => $request->judul2,
             'judul3' => $request->judul3,
-            'status' => JudulTA::STATUS_SUBMITTED, // MENGGUNAKAN KONSTANTA
+            'file_pendukung1' => $filePendukung1Path, // Simpan path file
+            'file_pendukung2' => $filePendukung2Path, // Simpan path file
+            'status' => JudulTA::STATUS_SUBMITTED,
         ]);
 
         $kajurUsers = User::where('role', 'kajur')->get();

@@ -168,6 +168,37 @@
                                                     </tr>
                                                 @endif
                                             </table>
+                                            @if ($pengajuan->file_pendukung1 || $pengajuan->file_pendukung2)
+                                                <div class="mt-4">
+                                                    <h6 class="mb-2 fw-bold text-primary">
+                                                        <i class="bi bi-paperclip me-2"></i>File Pendukung
+                                                    </h6>
+                                                    <ul class="list-group list-group-flush">
+                                                        @if ($pengajuan->file_pendukung1)
+                                                            <li
+                                                                class="list-group-item d-flex justify-content-between align-items-center ps-0">
+                                                                File Pendukung 1:
+                                                                <a href="{{ Storage::url($pengajuan->file_pendukung1) }}"
+                                                                    target="_blank"
+                                                                    class="btn btn-sm btn-outline-primary">
+                                                                    <i class="bi bi-download me-1"></i> Lihat File 1
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                        @if ($pengajuan->file_pendukung2)
+                                                            <li
+                                                                class="list-group-item d-flex justify-content-between align-items-center ps-0">
+                                                                File Pendukung 2:
+                                                                <a href="{{ Storage::url($pengajuan->file_pendukung2) }}"
+                                                                    target="_blank"
+                                                                    class="btn btn-sm btn-outline-primary">
+                                                                    <i class="bi bi-download me-1"></i> Lihat File 2
+                                                                </a>
+                                                            </li>
+                                                        @endif
+                                                    </ul>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
 
@@ -240,13 +271,15 @@
                                                     method="POST">
                                                     @csrf
                                                     <div class="mb-3">
-                                                        <label for="judul_pilihan_dosen_saran" class="form-label">Pilih
+                                                        <label for="judul_pilihan_dosen_saran"
+                                                            class="form-label">Pilih
                                                             Judul yang Disetujui</label>
                                                         <select
                                                             class="form-select @error('judul_pilihan_dosen_saran') is-invalid @enderror"
                                                             id="judul_pilihan_dosen_saran"
                                                             name="judul_pilihan_dosen_saran" required>
-                                                            <option value="">-- Pilih salah satu judul --</option>
+                                                            <option value="">-- Pilih salah satu judul --
+                                                            </option>
                                                             <option value="{{ $pengajuan->judul1 }}"
                                                                 {{ old('judul_pilihan_dosen_saran') == $pengajuan->judul1 ? 'selected' : '' }}>
                                                                 {{ $pengajuan->judul1 }}</option>

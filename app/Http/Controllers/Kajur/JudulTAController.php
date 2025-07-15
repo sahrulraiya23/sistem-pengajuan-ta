@@ -57,6 +57,24 @@ class JudulTAController extends Controller
         return view('kajur.judul-ta.index', compact('pengajuan'));
     }
 
+    public function show(Request $request, $id)
+    {
+        // Logika untuk menandai notifikasi spesifik sebagai terbaca
+        if ($request->has('notification_id') && Auth::user()) {
+            $notification = Auth::user()->unreadNotifications->where('id', $request->notification_id)->first();
+            if ($notification) {
+                $notification->markAsRead();
+            }
+        }
+
+        $pengajuan = JudulTA::with(['mahasiswa', 'dosenSarans', 'pembimbings.dosen'])->findOrFail($id);
+
+        // Ambil daftar semua dosen (User dengan role 'dosen') untuk ditampilkan di form
+        $dosen = User::where('role', 'dosen')->get();
+
+        return view('kajur.judul-ta.show', compact('pengajuan', 'dosen'));
+    }
+
     /**
      * Memproses tindakan pengajuan judul (tunjuk dosen saran, tolak).
      * Finalisasi judul ditangani oleh method 'finalize'.

@@ -25,7 +25,8 @@
                             </div>
 
                             <div class="card-body">
-                                <form action="{{ route('mahasiswa.judul-ta.store') }}" method="POST">
+                                <form action="{{ route('mahasiswa.judul-ta.store') }}" method="POST"
+                                    enctype="multipart/form-data">
                                     @csrf
                                     <div class="mb-3">
                                         <label for="judul1" class="form-label">Judul Pilihan 1</label>
@@ -55,6 +56,31 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                         <div class="form-text">Masukkan judul pilihan ketiga Anda</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="file_pendukung1" class="form-label">File Pendukung 1 (Opsional,
+                                            PDF/DOC/DOCX)</label>
+                                        <input type="file"
+                                            class="form-control @error('file_pendukung1') is-invalid @enderror"
+                                            id="file_pendukung1" name="file_pendukung1" accept=".pdf,.doc,.docx">
+                                        @error('file_pendukung1')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">Unggah file pendukung pertama (misal: jurnal, proposal
+                                            singkat).</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label for="file_pendukung2" class="form-label">File Pendukung 2 (Opsional,
+                                            PDF/DOC/DOCX)</label>
+                                        <input type="file"
+                                            class="form-control @error('file_pendukung2') is-invalid @enderror"
+                                            id="file_pendukung2" name="file_pendukung2" accept=".pdf,.doc,.docx">
+                                        @error('file_pendukung2')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">Unggah file pendukung kedua (misal: referensi tambahan).
+                                        </div>
                                     </div>
 
                                     <div class="d-grid">
