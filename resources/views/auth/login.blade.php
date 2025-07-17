@@ -6,7 +6,7 @@
                 <div class="text-center">
                     <img src="{{ asset('assets/img/logo-uho.png') }}" alt="Logo UHO" class="h-14 w-auto mx-auto mb-4">
                     <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
-                        Selamat Datang Kembali
+                        Selamat Datang Di TAku
                     </h1>
                     <p class="text-sm text-gray-500">Silakan login ke akun Anda</p>
                 </div>
