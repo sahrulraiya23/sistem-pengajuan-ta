@@ -63,9 +63,9 @@ class JudulTA extends Model
 
     public function revisi()
     {
-        return $this->hasMany(Revisi::class);
+        // Tambahkan 'judul_ta_id' sebagai parameter kedua
+        return $this->hasMany(Revisi::class, 'judul_ta_id');
     }
-
     public function surat()
     {
         return $this->hasOne(SuratTA::class, 'judul_ta_id');
@@ -74,8 +74,12 @@ class JudulTA extends Model
     /**
      * Relasi many-to-many untuk dosen saran.
      */
+    // File: app/Models/JudulTA.php
+
     public function dosenSarans()
     {
-        return $this->belongsToMany(User::class, 'judul_ta_dosen_sarans', 'judul_ta_id', 'user_id');
+        return $this->belongsToMany(User::class, 'judul_ta_dosen_sarans', 'judul_ta_id', 'user_id')
+            ->withPivot('judul_pilihan', 'catatan', 'status_persetujuan') // Tambahkan ini
+            ->withTimestamps();
     }
 }

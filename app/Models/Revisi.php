@@ -14,6 +14,7 @@ class Revisi extends Model
     protected $fillable = [
         'judul_ta_id',
         'user_id',
+        'dosen_id', // TAMBAHKAN INI
         'role_type',
         'catatan',
     ];
@@ -27,6 +28,7 @@ class Revisi extends Model
     {
         return $this->belongsTo(User::class);
     }
+    
     public function dosen()
     {
         return $this->belongsTo(User::class, 'dosen_id');

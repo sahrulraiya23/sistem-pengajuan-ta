@@ -128,116 +128,214 @@ class BimbinganController extends Controller
      * Memproses review awal dari dosen saran terhadap pengajuan judul mahasiswa.
      * Ini terjadi setelah Kajur menunjuk dosen saran.
      */
-    public function processInitialLecturerReview(Request $request, $id)
+// File: app/Http/Controllers/Dosen/BimbinganController.php
+
+public function processInitialLecturerReview(Request $request, $id)
     {
         $request->validate([
-            'judul_pilihan_dosen_saran' => 'required|string|max:255', // Judul yang dipilih oleh dosen saran
-            'catatan_initial_revisi' => 'required|string|max:1000',   // Revisi awal yang diberikan dosen
+            'judul_pilihan_dosen_saran' => 'required|string|max:255',
+            'catatan_initial_revisi' => 'required|string|max:1000',
         ]);
 
         $userDosen = Auth::user();
 
-        // Pastikan pengajuan ini ada dan dosen yang login adalah salah satu dosen saran yang ditunjuk
-        $pengajuan = JudulTA::whereHas('dosenSarans', function ($query) use ($userDosen) {
-            $query->where('user_id', $userDosen->id);
-        })
-            ->where('id', $id)
-            ->firstOrFail();
+        // Pastikan pengajuan ada
+        $pengajuan = JudulTA::findOrFail($id);
 
-        // Hanya proses jika statusnya APPROVED_FOR_CONSULTATION
-        if ($pengajuan->status !== JudulTA::STATUS_APPROVED_FOR_CONSULTATION) {
-            return redirect()->back()->with('error', 'Pengajuan ini tidak dalam status untuk persetujuan awal dosen saran. Status saat ini: ' . $pengajuan->status);
+        // Cek apakah dosen ini benar-benar dosen saran untuk judul ini
+        $isDosenSaran = DB::table('judul_ta_dosen_sarans')
+            ->where('judul_ta_id', $pengajuan->id)
+            ->where('user_id', $userDosen->id)
+            ->exists();
+
+        if (!$isDosenSaran) {
+            abort(403, 'Anda bukan dosen saran untuk judul ini.');
         }
 
-        // Gunakan transaksi database untuk memastikan semua operasi berhasil atau di-rollback
-        DB::transaction(function () use ($request, $pengajuan) {
-            // 1. Setel judul yang disetujui oleh dosen saran dan perbarui status
-            $pengajuan->update([
-                'judul_approved' => $request->judul_pilihan_dosen_saran,
-                'status' => JudulTA::STATUS_REVISED, // Langsung ke status revisi setelah disetujui dan diberi catatan
-                'catatan_dosen_saran' => $request->catatan_initial_revisi, // Catatan ini bisa disimpan di sini
-            ]);
+        // Validasi Status Pengajuan
+        if ($pengajuan->status !== JudulTA::STATUS_APPROVED_FOR_CONSULTATION) {
+            return redirect()->back()->with('error', 'Status pengajuan tidak valid untuk direview.');
+        }
 
-            // 2. Buat entri revisi pertama di tabel revisi
-            $revisi = new Revisi();
-            $revisi->judul_ta_id = $pengajuan->id;
-            $revisi->user_id = Auth::id(); // ID dosen yang memberikan revisi
-            $revisi->dosen_id = Auth::id(); // Kolom dosen_id di tabel revisi
-            $revisi->role_type = 'dosen';
-            $revisi->catatan = $request->catatan_initial_revisi;
-            $revisi->save();
+        DB::transaction(function () use ($request, $pengajuan, $userDosen) {
+            // 1. UPDATE DATA PIVOT (Hanya untuk dosen yang login)
+            // Update dulu agar perhitungan di bawah sudah menyertakan dosen ini
+            DB::table('judul_ta_dosen_sarans')
+                ->where('judul_ta_id', $pengajuan->id)
+                ->where('user_id', $userDosen->id)
+                ->update([
+                    'judul_pilihan' => $request->judul_pilihan_dosen_saran,
+                    'catatan' => $request->catatan_initial_revisi,
+                    'status_persetujuan' => 'approved',
+                    'updated_at' => now(),
+                ]);
 
-            // 3. Kirim notifikasi ke mahasiswa
-            if ($pengajuan->mahasiswa) {
-                $pengajuan->mahasiswa->notify(new RevisiBaruNotification($revisi));
-            }
+            // 2. HITUNG JUMLAH SECARA MANUAL & AKURAT DARI DATABASE
+            $totalDosenSaran = DB::table('judul_ta_dosen_sarans')
+                ->where('judul_ta_id', $pengajuan->id)
+                ->count();
+
+            $jumlahDosenSetuju = DB::table('judul_ta_dosen_sarans')
+                ->where('judul_ta_id', $pengajuan->id)
+                ->where('status_persetujuan', 'approved')
+                ->count();
+
+            // 3. LOGIKA PENENTUAN STATUS UTAMA
+            // Syarat Mutlak:
+            // A. Harus ada minimal 2 dosen saran (Mencegah update jika data dosen cuma 1)
+            // B. Jumlah yang setuju harus SAMA DENGAN total dosen
+            
+            $syaratLengkap = ($totalDosenSaran >= 2) && ($jumlahDosenSetuju == $totalDosenSaran);
+
+            if ($syaratLengkap) {
+                
+                // Ambil semua catatan dosen untuk digabung
+                $allReviews = DB::table('judul_ta_dosen_sarans')
+                    ->join('users', 'judul_ta_dosen_sarans.user_id', '=', 'users.id')
+                    ->where('judul_ta_id', $pengajuan->id)
+                    ->select('users.name', 'judul_ta_dosen_sarans.catatan', 'judul_ta_dosen_sarans.judul_pilihan')
+                    ->get();
+
+                $catatanGabungan = "";
+                // Kita ambil judul pilihan dari input dosen terakhir sebagai judul sementara
+                $judulFinal = $request->judul_pilihan_dosen_saran; 
+
+                foreach ($allReviews as $review) {
+                    $catatanGabungan .= "Review Dosen " . $review->name . ": " . $review->catatan . "\n\n";
+                }
+
+                // Update Tabel Utama JudulTA ke Status REVISI
+                $pengajuan->update([
+                    'judul_approved' => $judulFinal, 
+                    'status' => JudulTA::STATUS_REVISED, 
+                    'catatan_dosen_saran' => $catatanGabungan,
+                ]);
+
+                // Buat Entri History Revisi
+                $revisiBaru = Revisi::create([
+                    'judul_ta_id' => $pengajuan->id,
+                    'user_id' => $userDosen->id,
+                    'dosen_id' => $userDosen->id,
+                    'role_type' => 'dosen',
+                    'catatan' => "Konsultasi Awal Selesai. " . $catatanGabungan,
+                ]);
+
+                // Notifikasi ke Mahasiswa
+                if ($pengajuan->mahasiswa) {
+                    // Gunakan variabel $revisiBaru agar lebih aman
+                    $pengajuan->mahasiswa->notify(new RevisiBaruNotification($revisiBaru));
+                }
+
+            } 
+            // ELSE: Jika belum lengkap, status utama TIDAK BERUBAH.
         });
 
-        return redirect()->route('dosen.bimbingan.index')
-            ->with('success', 'Judul berhasil disetujui dan revisi awal telah dikirim ke mahasiswa.');
-    }
+        // Feedback ke Dosen
+        // Hitung ulang sisa dosen untuk pesan flash message
+        $sisa = DB::table('judul_ta_dosen_sarans')
+                ->where('judul_ta_id', $pengajuan->id)
+                ->where('status_persetujuan', '!=', 'approved')
+                ->count();
 
+        if ($sisa > 0) {
+            return redirect()->route('dosen.bimbingan.index')
+                ->with('success', 'Review Anda berhasil disimpan. Menunggu ' . $sisa . ' dosen saran lagi.');
+        } else {
+            return redirect()->route('dosen.bimbingan.index')
+                ->with('success', 'Semua dosen telah setuju. Status pengajuan diperbarui menjadi Revisi.');
+        }
+    }
     /**
      * Memproses pengajuan judul yang diajukan kembali oleh mahasiswa setelah revisi.
      */
-    public function processReSubmittedTitle(Request $request, $id)
-    {
-        $request->validate([
-            'tindakan' => 'required|in:approve_resubmission,reject_resubmission',
-            'catatan' => 'nullable|string|max:1000',
-            // Judul disetujui oleh dosen hanya diperlukan jika tindakan adalah 'approve_resubmission'
-            'judul_approved_by_dosen' => 'required_if:tindakan,approve_resubmission|string|max:255',
-        ]);
+public function processReSubmittedTitle(Request $request, $id)
+{
+    $request->validate([
+        'tindakan' => 'required|in:approve_resubmission,reject_resubmission',
+        'judul_approved_by_dosen' => 'nullable|required_if:tindakan,approve_resubmission|string|max:255',
+        'catatan' => 'nullable|string|max:1000',
+    ]);
 
-        $userDosen = Auth::user();
+    $userDosen = Auth::user();
+    $pengajuan = JudulTA::findOrFail($id);
 
-        // Pastikan pengajuan ini ada dan dosen yang login adalah salah satu dosen saran yang ditunjuk
-        $pengajuan = JudulTA::whereHas('dosenSarans', function ($query) use ($userDosen) {
-            $query->where('user_id', $userDosen->id);
-        })
-            ->where('id', $id)
-            ->firstOrFail();
-
-        // Pastikan statusnya memang 'submit_revisi'
-        if ($pengajuan->status !== JudulTA::STATUS_SUBMIT_REVISED) {
-            return redirect()->back()->with('error', 'Tindakan tidak dapat dilakukan karena status pengajuan tidak sesuai. Status saat ini: ' . $pengajuan->status);
-        }
-
-        return DB::transaction(function () use ($request, $pengajuan) {
-            if ($request->tindakan == 'approve_resubmission') {
-                $pengajuan->update([
-                    'status' => JudulTA::STATUS_APPROVED, // Status berubah menjadi 'approved' (siap finalisasi oleh Kajur)
-                    'judul_approved' => $request->judul_approved_by_dosen, // Simpan judul yang disetujui dosen
-                    'catatan_dosen_saran' => $request->catatan, // Simpan catatan dosen saran
-                ]);
-
-                // Kirim notifikasi ke Kajur bahwa judul sudah disetujui oleh dosen saran dan siap untuk finalisasi
-                $kajurUsers = User::where('role', 'kajur')->get();
-                if ($kajurUsers->isNotEmpty()) {
-                    Notification::send($kajurUsers, new PengajuanJudulNotification($pengajuan));
-                }
-
-                return redirect()->route('dosen.bimbingan.index')
-                    ->with('success', 'Pengajuan judul berhasil disetujui oleh dosen saran dan diajukan ke Ketua Jurusan.');
-            } elseif ($request->tindakan == 'reject_resubmission') {
-                $pengajuan->update([
-                    'status' => JudulTA::STATUS_REVISED, // Kembali ke status revisi
-                    'alasan_penolakan' => $request->catatan, // Gunakan kolom alasan_penolakan
-                    'catatan_dosen_saran' => $request->catatan, // Simpan catatan dosen saran
-                ]);
-
-                // Kirim notifikasi ke mahasiswa bahwa pengajuan kembali ditolak
-                if ($pengajuan->mahasiswa) {
-                    $pengajuan->mahasiswa->notify(new JudulDitolakNotification($pengajuan));
-                }
-
-                return redirect()->route('dosen.bimbingan.index')
-                    ->with('success', 'Pengajuan judul berhasil ditolak dan status kembali menjadi "revisi".');
-            }
-        });
-
-        return redirect()->back()->with('error', 'Terjadi kesalahan. Silakan coba lagi.');
+    // Pastikan statusnya benar (Mahasiswa sudah mengajukan kembali)
+    if ($pengajuan->status !== JudulTA::STATUS_SUBMIT_REVISED) {
+        return redirect()->back()->with('error', 'Pengajuan belum diajukan kembali oleh mahasiswa.');
     }
+
+    DB::transaction(function () use ($request, $pengajuan, $userDosen) {
+        // 1. TENTUKAN STATUS BARU UNTUK DOSEN INI (DI PIVOT)
+        $statusPivot = ($request->tindakan == 'approve_resubmission') ? 'approved' : 'rejected';
+        
+        // Simpan keputusan dosen ini ke tabel pivot
+        DB::table('judul_ta_dosen_sarans')
+            ->where('judul_ta_id', $pengajuan->id)
+            ->where('user_id', $userDosen->id)
+            ->update([
+                'status_persetujuan' => $statusPivot,
+                'judul_pilihan' => $request->judul_approved_by_dosen, // Update judul final pilihan dosen
+                'catatan' => $request->catatan,
+                'updated_at' => now(),
+            ]);
+
+        // 2. LOGIKA PENENTUAN NASIB JUDUL (LANJUT ATAU TOLAK)
+        
+        // Skenario A: Jika Dosen Menolak
+        if ($statusPivot == 'rejected') {
+            // Jika SALAH SATU dosen menolak, status langsung dikembalikan ke REVISI
+            // Mahasiswa harus perbaiki lagi.
+            $pengajuan->update([
+                'status' => JudulTA::STATUS_REVISED,
+                'catatan_dosen_saran' => "Dosen " . $userDosen->name . " meminta perbaikan ulang: " . $request->catatan,
+            ]);
+            
+            // Kirim notifikasi ke mahasiswa (bahwa ditolak/revisi lagi)
+            // ...
+        } 
+        
+        // Skenario B: Jika Dosen Menyetujui
+        else {
+            // Cek apakah SEMUA dosen sudah setuju?
+            $totalDosen = DB::table('judul_ta_dosen_sarans')->where('judul_ta_id', $pengajuan->id)->count();
+            $jumlahSetuju = DB::table('judul_ta_dosen_sarans')
+                ->where('judul_ta_id', $pengajuan->id)
+                ->where('status_persetujuan', 'approved')
+                ->count();
+
+            // Syarat Final: Minimal 2 dosen & Semua harus setuju
+            if ($totalDosen >= 2 && $jumlahSetuju == $totalDosen) {
+                
+                // FINALISASI: Ubah status utama jadi APPROVED (Siap untuk Kajur/Administrasi)
+                $pengajuan->update([
+                    'status' => JudulTA::STATUS_APPROVED, // Atau STATUS_FINALIZED tergantung alur Anda
+                    'judul_approved' => $request->judul_approved_by_dosen,
+                    'catatan_dosen_saran' => "Kedua dosen telah menyetujui revisi.",
+                ]);
+
+                // Notifikasi Sukses ke Mahasiswa
+                // ...
+            }
+        }
+    });
+
+    // Feedback pesan ke layar
+    if ($request->tindakan == 'reject_resubmission') {
+        return redirect()->route('dosen.bimbingan.index')->with('warning', 'Anda meminta mahasiswa untuk merevisi kembali.');
+    }
+    
+    // Cek sisa dosen jika di-approve
+    $sisa = DB::table('judul_ta_dosen_sarans')
+            ->where('judul_ta_id', $pengajuan->id)
+            ->where('status_persetujuan', '!=', 'approved')
+            ->count();
+
+    if ($sisa > 0) {
+        return redirect()->route('dosen.bimbingan.index')->with('success', 'Persetujuan disimpan. Menunggu ' . $sisa . ' dosen lagi.');
+    } else {
+        return redirect()->route('dosen.bimbingan.index')->with('success', 'Judul Telah Disetujui Sepenuhnya!');
+    }
+}
 
     /**
      * Method ini tidak digunakan di alur Dosen Saran/Pembimbing.
