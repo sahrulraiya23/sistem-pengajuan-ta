@@ -40,37 +40,60 @@
                                         @php
                                             $badgeClass = '';
                                             $statusText = '';
+
                                             switch ($pengajuan->status) {
+                                                case 'draft':
+                                                    $badgeClass = 'bg-secondary';
+                                                    $statusText = 'Draft';
+                                                    break;
+
                                                 case 'submitted':
                                                     $badgeClass = 'bg-warning';
                                                     $statusText = 'Diajukan';
                                                     break;
+
                                                 case 'approved_for_consultation':
                                                     $badgeClass = 'bg-info';
                                                     $statusText = 'Disetujui Awal (Konsultasi Dosen Saran)';
                                                     break;
+
                                                 case 'revisi':
                                                     $badgeClass = 'bg-danger';
-                                                    $statusText = 'Revisi';
+                                                    $statusText = 'Perlu Revisi';
                                                     break;
+
+                                                case 'submit_revisi':
+                                                    $badgeClass = 'bg-primary';
+                                                    $statusText = 'Revisi Diajukan';
+                                                    break;
+
                                                 case 're_submitted_after_consultation':
                                                     $badgeClass = 'bg-primary';
                                                     $statusText = 'Diajukan Kembali (Menunggu Validasi Final)';
                                                     break;
+
+                                                case 'approved':
+                                                    $badgeClass = 'bg-success';
+                                                    $statusText = 'Disetujui';
+                                                    break;
+
                                                 case 'finalized':
                                                     $badgeClass = 'bg-success';
                                                     $statusText = 'Finalisasi';
                                                     break;
+
                                                 case 'rejected':
                                                     $badgeClass = 'bg-dark';
                                                     $statusText = 'Ditolak';
                                                     break;
+
                                                 default:
                                                     $badgeClass = 'bg-secondary';
                                                     $statusText = 'Tidak Diketahui';
                                                     break;
                                             }
                                         @endphp
+
                                         <span class="badge {{ $badgeClass }}">{{ $statusText }}</span>
                                     </div>
                                 </div>

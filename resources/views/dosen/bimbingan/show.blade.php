@@ -73,42 +73,56 @@
                                             <table class="table table-sm">
                                                 <tr>
                                                     <th width="20%">Status</th>
+                                                    <th width="20%">Status</th>
                                                     <td>
                                                         @php
                                                             $badgeClass = '';
                                                             $statusText = '';
+
                                                             switch ($pengajuan->status) {
+                                                                case \App\Models\JudulTA::STATUS_DRAFT:
+                                                                    $badgeClass = 'bg-secondary';
+                                                                    $statusText = 'Draft';
+                                                                    break;
+
                                                                 case \App\Models\JudulTA::STATUS_SUBMITTED:
                                                                     $badgeClass = 'bg-warning';
                                                                     $statusText = 'Diajukan (Menunggu Kajur)';
                                                                     break;
+
                                                                 case \App\Models\JudulTA::STATUS_APPROVED_FOR_CONSULTATION:
                                                                     $badgeClass = 'bg-info';
                                                                     $statusText =
                                                                         'Disetujui Awal (Menunggu Saran Anda)';
                                                                     break;
+
                                                                 case \App\Models\JudulTA::STATUS_REVISED:
                                                                     $badgeClass = 'bg-danger';
                                                                     $statusText = 'Revisi (Mahasiswa Merevisi)';
                                                                     break;
+
                                                                 case \App\Models\JudulTA::STATUS_SUBMIT_REVISED:
                                                                     $badgeClass = 'bg-primary';
                                                                     $statusText =
                                                                         'Diajukan Kembali (Menunggu Persetujuan Anda)';
                                                                     break;
-                                                                case \App\Models\JudulTA::STATUS_APPROVED: // Disetujui Dosen Saran
+
+                                                                case \App\Models\JudulTA::STATUS_APPROVED:
                                                                     $badgeClass = 'bg-success';
                                                                     $statusText =
                                                                         'Disetujui Dosen (Menunggu Finalisasi Kajur)';
                                                                     break;
-                                                                case \App\Models\JudulTA::STATUS_REJECTED:
-                                                                    $badgeClass = 'bg-dark';
-                                                                    $statusText = 'Ditolak';
-                                                                    break;
+
                                                                 case \App\Models\JudulTA::STATUS_FINALIZED:
                                                                     $badgeClass = 'bg-success';
                                                                     $statusText = 'Finalisasi';
                                                                     break;
+
+                                                                case \App\Models\JudulTA::STATUS_REJECTED:
+                                                                    $badgeClass = 'bg-dark';
+                                                                    $statusText = 'Ditolak';
+                                                                    break;
+
                                                                 default:
                                                                     $badgeClass = 'bg-secondary';
                                                                     $statusText = ucfirst(
@@ -117,9 +131,11 @@
                                                                     break;
                                                             }
                                                         @endphp
+
                                                         <span
                                                             class="badge {{ $badgeClass }}">{{ $statusText }}</span>
                                                     </td>
+
                                                 </tr>
                                                 <tr>
                                                     <th>Tanggal Pengajuan</th>

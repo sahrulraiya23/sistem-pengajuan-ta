@@ -41,16 +41,29 @@
                                             <tr>
                                                 <th width="40%">Status</th>
                                                 <td>
-                                                    @if ($pengajuan->status == 'submitted')
-                                                        <span class="badge bg-info">Diajukan</span>
-                                                    @elseif($pengajuan->status == 'approved')
+                                                    @if ($pengajuan->status == 'draft')
+                                                        <span class="badge bg-secondary">Draft</span>
+                                                    @elseif ($pengajuan->status == 'submitted')
+                                                        <span class="badge bg-warning">Diajukan</span>
+                                                    @elseif ($pengajuan->status == 'approved_for_consultation')
+                                                        <span class="badge bg-info">Disetujui Awal (Konsultasi)</span>
+                                                    @elseif ($pengajuan->status == 'revisi')
+                                                        <span class="badge bg-danger">Perlu Revisi</span>
+                                                    @elseif ($pengajuan->status == 'submit_revisi')
+                                                        <span class="badge bg-primary">Revisi Diajukan</span>
+                                                    @elseif ($pengajuan->status == 're_submitted_after_consultation')
+                                                        <span class="badge bg-primary">Menunggu Validasi Final</span>
+                                                    @elseif ($pengajuan->status == 'approved')
                                                         <span class="badge bg-success">Disetujui</span>
-                                                    @elseif($pengajuan->status == 'rejected')
-                                                        <span class="badge bg-danger">Ditolak</span>
-                                                    @elseif($pengajuan->status == 'finalized')
-                                                        <span class="badge bg-primary">Difinalisasi</span>
+                                                    @elseif ($pengajuan->status == 'finalized')
+                                                        <span class="badge bg-success">Finalisasi</span>
+                                                    @elseif ($pengajuan->status == 'rejected')
+                                                        <span class="badge bg-dark">Ditolak</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">Tidak Diketahui</span>
                                                     @endif
                                                 </td>
+
                                             </tr>
                                             <tr>
                                                 <th>Judul yang Disetujui</th>

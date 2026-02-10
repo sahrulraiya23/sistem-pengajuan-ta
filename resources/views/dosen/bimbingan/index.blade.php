@@ -125,31 +125,52 @@
                                                             $badgeClass = 'bg-secondary';
                                                             $statusText = 'Tidak Diketahui';
                                                             switch ($item->status) {
+                                                                case 'draft':
+                                                                    $badgeClass = 'bg-secondary';
+                                                                    $statusText = 'Draft';
+                                                                    break;
+
+                                                                case 'submitted':
+                                                                    $badgeClass = 'bg-warning';
+                                                                    $statusText = 'Menunggu Kajur';
+                                                                    break;
+
                                                                 case 'approved_for_consultation':
                                                                     $badgeClass = 'bg-info';
                                                                     $statusText = 'Menunggu Saran';
                                                                     break;
-                                                                case 'revised':
-                                                                    $badgeClass = 'bg-warning';
+
+                                                                case 'revisI':
+                                                                    $badgeClass = 'bg-danger';
                                                                     $statusText = 'Revisi Mahasiswa';
                                                                     break;
+
                                                                 case 'submit_revised':
                                                                     $badgeClass = 'bg-primary';
                                                                     $statusText = 'Diajukan Kembali';
                                                                     break;
+
                                                                 case 'approved':
                                                                     $badgeClass = 'bg-success';
                                                                     $statusText = 'Disetujui Anda';
                                                                     break;
+
                                                                 case 'finalized':
                                                                     $badgeClass = 'bg-success';
                                                                     $statusText = 'Selesai (Kajur)';
                                                                     break;
+
                                                                 case 'rejected':
-                                                                    $badgeClass = 'bg-danger';
+                                                                    $badgeClass = 'bg-dark';
                                                                     $statusText = 'Ditolak';
                                                                     break;
+
+                                                                default:
+                                                                    $badgeClass = 'bg-secondary';
+                                                                    $statusText = 'Status Tidak Diketahui';
+                                                                    break;
                                                             }
+
                                                         @endphp
                                                         <span
                                                             class="badge {{ $badgeClass }}">{{ $statusText }}</span>
