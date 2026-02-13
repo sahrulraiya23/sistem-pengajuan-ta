@@ -61,25 +61,69 @@
                                                     <table class="table table-sm table-borderless">
                                                         <tr>
                                                             <th width="40%" class="text-secondary">Status</th>
-                                                            <td>
-                                                                @if ($pengajuan->status == 'submitted')
-                                                                    <span class="badge bg-info rounded-pill px-3">
-                                                                        <i class="bi bi-hourglass me-1"></i>Diajukan
-                                                                    </span>
-                                                                @elseif($pengajuan->status == 'approved')
-                                                                    <span class="badge bg-success rounded-pill px-3">
-                                                                        <i class="bi bi-check-circle me-1"></i>Disetujui
-                                                                    </span>
-                                                                @elseif($pengajuan->status == 'rejected')
-                                                                    <span class="badge bg-danger rounded-pill px-3">
-                                                                        <i class="bi bi-x-circle me-1"></i>Ditolak
-                                                                    </span>
-                                                                @elseif($pengajuan->status == 'finalized')
-                                                                    <span class="badge bg-primary rounded-pill px-3">
-                                                                        <i class="bi bi-lock me-1"></i>Difinalisasi
-                                                                    </span>
-                                                                @endif
-                                                            </td>
+                                                         <td>
+    @switch($pengajuan->status)
+        @case('draft')
+            <span class="badge bg-secondary rounded-pill px-3">
+                <i class="bi bi-file-earmark me-1"></i>Draft
+            </span>
+            @break
+
+        @case('submitted')
+            <span class="badge bg-warning text-dark rounded-pill px-3">
+                <i class="bi bi-send me-1"></i>Diajukan (Menunggu Kajur)
+            </span>
+            @break
+
+        @case('approved_for_consultation')
+            <span class="badge bg-info text-dark rounded-pill px-3">
+                <i class="bi bi-people me-1"></i>Konsultasi Dosen
+            </span>
+            @break
+
+        @case('revisi')
+            <span class="badge bg-danger rounded-pill px-3">
+                <i class="bi bi-exclamation-circle me-1"></i>Perlu Revisi
+            </span>
+            @break
+
+        @case('submit_revisi')
+        @case('re_submitted_after_consultation')
+            <span class="badge bg-primary rounded-pill px-3">
+                <i class="bi bi-arrow-repeat me-1"></i>Revisi Diajukan
+            </span>
+            @break
+
+        @case('menunggu_persetujuan_dosen')
+            <span class="badge bg-warning text-dark rounded-pill px-3">
+                <i class="bi bi-hourglass-split me-1"></i>Menunggu Dosen
+            </span>
+            @break
+
+        @case('approved')
+            <span class="badge bg-success rounded-pill px-3">
+                <i class="bi bi-check-circle me-1"></i>Disetujui Dosen
+            </span>
+            @break
+
+        @case('finalized')
+            <span class="badge bg-success rounded-pill px-3">
+                <i class="bi bi-lock-fill me-1"></i>Final (Selesai)
+            </span>
+            @break
+
+        @case('rejected')
+            <span class="badge bg-dark rounded-pill px-3">
+                <i class="bi bi-x-circle me-1"></i>Ditolak
+            </span>
+            @break
+
+        @default
+            <span class="badge bg-secondary rounded-pill px-3">
+                {{ $pengajuan->status }}
+            </span>
+    @endswitch
+</td>
                                                         </tr>
                                                         <tr>
                                                             <th class="text-secondary">Tanggal Pengajuan</th>

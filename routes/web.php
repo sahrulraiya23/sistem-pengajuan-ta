@@ -38,6 +38,12 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('surat/{id}', [SuratController::class, 'show'])->name('mahasiswa.surat.show');
         Route::get('surat/{id}/download', [SuratController::class, 'downloadPDF'])->name('mahasiswa.surat.download');
+
+        Route::get('thesis', [App\Http\Controllers\Mahasiswa\ThesisArchiveController::class, 'index'])->name('mahasiswa.thesis.index');
+        Route::get('thesis/{id}', [App\Http\Controllers\Mahasiswa\ThesisArchiveController::class, 'show'])->name('mahasiswa.thesis.show');
+
+        Route::get('plagiarism-check', [App\Http\Controllers\Mahasiswa\ThesisArchiveController::class, 'plagiarismCheck'])->name('mahasiswa.plagiarism.check');
+        Route::post('plagiarism-check', [App\Http\Controllers\Mahasiswa\ThesisArchiveController::class, 'checkPlagiarism'])->name('mahasiswa.plagiarism.submit');
     });
 
     // Kajur routes

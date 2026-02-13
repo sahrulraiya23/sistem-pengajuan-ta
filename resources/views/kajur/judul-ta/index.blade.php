@@ -45,19 +45,32 @@
                                 <div class="row g-3 align-items-center mb-4">
                                     <div class="col-md-4">
                                         <label for="status" class="form-label">Filter berdasarkan Status:</label>
-                                        <select name="status" id="status" class="form-select">
+                                   <select name="status" id="status" class="form-select">
                                             <option value="">Semua Status</option>
-                                            <option value="pending"
-                                                {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
-                                            <option value="approved"
-                                                {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui
+                                            
+                                            <option value="submitted" {{ request('status') == 'submitted' ? 'selected' : '' }}>
+                                                Diajukan (Perlu Tindakan Anda)
                                             </option>
-                                            <option value="rejected"
-                                                {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
-                                            <option value="revision"
-                                                {{ request('status') == 'revision' ? 'selected' : '' }}>Revisi</option>
-                                            <option value="finalized"
-                                                {{ request('status') == 'finalized' ? 'selected' : '' }}>Difinalisasi
+
+                                            <option value="approved_for_consultation" {{ request('status') == 'approved_for_consultation' ? 'selected' : '' }}>
+                                                Proses Bimbingan Dosen
+                                            </option>
+                                            <option value="revisi" {{ request('status') == 'revisi' ? 'selected' : '' }}>
+                                                Sedang Revisi
+                                            </option>
+                                            <option value="submit_revisi" {{ request('status') == 'submit_revisi' ? 'selected' : '' }}>
+                                                Revisi Diajukan Kembali
+                                            </option>
+
+                                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>
+                                                Disetujui Dosen (Siap Finalisasi)
+                                            </option>
+                                            
+                                            <option value="finalized" {{ request('status') == 'finalized' ? 'selected' : '' }}>
+                                                Selesai (Final)
+                                            </option>
+                                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>
+                                                Ditolak
                                             </option>
                                         </select>
                                     </div>
@@ -107,22 +120,55 @@
                                                     <td>{{ $item->mahasiswa->name ?? 'N/A' }}</td>
                                                     <td>{{ $item->judul1 }}</td>
                                                     <td>{{ $item->created_at->format('d M Y') }}</td>
-                                                    <td>
-                                                        @if ($item->status == 'pending' || $item->status == 'submitted')
-                                                            <span class="badge bg-warning">Menunggu</span>
-                                                        @elseif($item->status == 'approved')
-                                                            <span class="badge bg-success">Disetujui</span>
-                                                        @elseif($item->status == 'rejected')
-                                                            <span class="badge bg-danger">Ditolak</span>
-                                                        @elseif($item->status == 'finalized')
-                                                            <span class="badge bg-primary">Difinalisasi</span>
-                                                        @elseif($item->status == 'revision')
-                                                            <span class="badge bg-info">Revisi</span>
-                                                        @else
-                                                            <span
-                                                                class="badge bg-secondary">{{ ucfirst($item->status) }}</span>
-                                                        @endif
-                                                    </td>
+                                            <td>
+                                                        @switch($item->status)
+                                                            @case('submitted')
+                                                                <span class="badge bg-warning text-dark rounded-pill px-3">
+                                                                    <i class="bi bi-exclamation-circle me-1"></i>Diajukan
+                                                                </span>
+                                                                @break
+                                                            
+                                                            @case('approved_for_consultation')
+                                                                <span class="badge bg-info text-dark rounded-pill px-3">
+                                                                    <i class="bi bi-people me-1"></i>Bimbingan
+                                                                </span>
+                                                                @break
+
+                                                            @case('revisi')
+                                                                <span class="badge bg-danger rounded-pill px-3">
+                                                                    <i class="bi bi-pencil me-1"></i>Revisi
+                                                                </span>
+                                                                @break
+
+                                                            @case('submit_revisi')
+                                                                <span class="badge bg-primary rounded-pill px-3">
+                                                                    <i class="bi bi-arrow-repeat me-1"></i>Cek Revisi
+                                                                </span>
+                                                                @break
+
+                                                            @case('approved')
+                                                                <span class="badge bg-success rounded-pill px-3">
+                                                                    <i class="bi bi-check-all me-1"></i>Disetujui Dosen
+                                                                </span>
+                                                                @break
+
+                                                            @case('finalized')
+                                                                <span class="badge bg-primary rounded-pill px-3">
+                                                                    <i class="bi bi-lock-fill me-1"></i>Final
+                                                                </span>
+                                                                @break
+
+                                                            @case('rejected')
+                                                                <span class="badge bg-dark rounded-pill px-3">
+                                                                    <i class="bi bi-x-circle me-1"></i>Ditolak
+                                                                </span>
+                                                                @break
+
+                                                            @default
+                                                                <span class="badge bg-secondary rounded-pill px-3">
+                                                                    {{ ucfirst($item->status) }}
+                                                                </span>
+                                                        @endswitch
                                                     <td>
                                                         <a href="{{ route('kajur.judul-ta.show', $item->id) }}"
                                                             class="btn btn-sm btn-info">Detail</a>

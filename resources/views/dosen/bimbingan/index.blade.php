@@ -1,3 +1,4 @@
+{{-- resources/views/dosen/bimbingan/index.blade.php --}}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -47,28 +48,40 @@
                                         <label for="status" class="form-label">Filter berdasarkan Status:</label>
                                         <select name="status" id="status" class="form-select">
                                             <option value="">Semua Status Aktif</option>
+                                            
                                             <option value="approved_for_consultation"
                                                 {{ request('status') == 'approved_for_consultation' ? 'selected' : '' }}>
-                                                Menunggu Saran</option>
-                                            <option value="submit_revised"
-                                                {{ request('status') == 'submit_revised' ? 'selected' : '' }}>Diajukan
-                                                Kembali</option>
-                                            <option value="revised"
-                                                {{ request('status') == 'revised' ? 'selected' : '' }}>Revisi Mahasiswa
+                                                Perlu Review Awal
                                             </option>
+                                            
+                                            <option value="revisi"
+                                                {{ request('status') == 'revisi' ? 'selected' : '' }}>
+                                                Menunggu Revisi Mahasiswa
+                                            </option>
+                                            
+                                            <option value="submit_revisi"
+                                                {{ request('status') == 'submit_revisi' ? 'selected' : '' }}>
+                                                Revisi Masuk (Perlu Review)
+                                            </option>
+                                            
                                             <option value="approved"
-                                                {{ request('status') == 'approved' ? 'selected' : '' }}>Disetujui
+                                                {{ request('status') == 'approved' ? 'selected' : '' }}>
+                                                Disetujui
                                             </option>
+                                            
                                             <option value="finalized"
-                                                {{ request('status') == 'finalized' ? 'selected' : '' }}>Selesai
+                                                {{ request('status') == 'finalized' ? 'selected' : '' }}>
+                                                Selesai (Final)
                                             </option>
+                                            
                                             <option value="rejected"
-                                                {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
+                                                {{ request('status') == 'rejected' ? 'selected' : '' }}>
+                                                Ditolak
+                                            </option>
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label for="search" class="form-label">Cari berdasarkan Nama
-                                            Mahasiswa:</label>
+                                        <label for="search" class="form-label">Cari berdasarkan Nama Mahasiswa:</label>
                                         <input type="text" name="search" id="search" class="form-control"
                                             placeholder="Masukkan nama mahasiswa..." value="{{ request('search') }}">
                                     </div>
@@ -119,61 +132,53 @@
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $item->mahasiswa->name ?? 'N/A' }}</td>
                                                     <td>{{ $item->mahasiswa->nomor_induk ?? 'N/A' }}</td>
-                                                    <td>{{ $item->judul_approved ?? $item->judul1 }}</td>
                                                     <td>
-                                                        @php
-                                                            $badgeClass = 'bg-secondary';
-                                                            $statusText = 'Tidak Diketahui';
-                                                            switch ($item->status) {
-                                                                case 'draft':
-                                                                    $badgeClass = 'bg-secondary';
-                                                                    $statusText = 'Draft';
-                                                                    break;
+                                                        {{-- Tampilkan judul approved jika ada, jika tidak tampilkan judul 1 --}}
+                                                        {{ $item->judul_approved ?? $item->judul1 }}
+                                                    </td>
+                                                    <td>
+                                                        @switch($item->status)
+                                                            @case('approved_for_consultation')
+                                                                <span class="badge bg-warning text-dark rounded-pill px-3">
+                                                                    <i class="bi bi-exclamation-circle me-1"></i>Perlu Review
+                                                                </span>
+                                                                @break
 
-                                                                case 'submitted':
-                                                                    $badgeClass = 'bg-warning';
-                                                                    $statusText = 'Menunggu Kajur';
-                                                                    break;
+                                                            @case('revisi')
+                                                                <span class="badge bg-danger rounded-pill px-3">
+                                                                    <i class="bi bi-pencil me-1"></i>Revisi Mhs
+                                                                </span>
+                                                                @break
 
-                                                                case 'approved_for_consultation':
-                                                                    $badgeClass = 'bg-info';
-                                                                    $statusText = 'Menunggu Saran';
-                                                                    break;
+                                                            @case('submit_revisi')
+                                                                <span class="badge bg-info text-dark rounded-pill px-3">
+                                                                    <i class="bi bi-arrow-repeat me-1"></i>Cek Revisi
+                                                                </span>
+                                                                @break
 
-                                                                case 'revisI':
-                                                                    $badgeClass = 'bg-danger';
-                                                                    $statusText = 'Revisi Mahasiswa';
-                                                                    break;
+                                                            @case('approved')
+                                                                <span class="badge bg-success rounded-pill px-3">
+                                                                    <i class="bi bi-check-circle me-1"></i>Disetujui
+                                                                </span>
+                                                                @break
 
-                                                                case 'submit_revised':
-                                                                    $badgeClass = 'bg-primary';
-                                                                    $statusText = 'Diajukan Kembali';
-                                                                    break;
+                                                            @case('finalized')
+                                                                <span class="badge bg-success rounded-pill px-3">
+                                                                    <i class="bi bi-lock-fill me-1"></i>Final
+                                                                </span>
+                                                                @break
 
-                                                                case 'approved':
-                                                                    $badgeClass = 'bg-success';
-                                                                    $statusText = 'Disetujui Anda';
-                                                                    break;
+                                                            @case('rejected')
+                                                                <span class="badge bg-dark rounded-pill px-3">
+                                                                    <i class="bi bi-x-circle me-1"></i>Ditolak
+                                                                </span>
+                                                                @break
 
-                                                                case 'finalized':
-                                                                    $badgeClass = 'bg-success';
-                                                                    $statusText = 'Selesai (Kajur)';
-                                                                    break;
-
-                                                                case 'rejected':
-                                                                    $badgeClass = 'bg-dark';
-                                                                    $statusText = 'Ditolak';
-                                                                    break;
-
-                                                                default:
-                                                                    $badgeClass = 'bg-secondary';
-                                                                    $statusText = 'Status Tidak Diketahui';
-                                                                    break;
-                                                            }
-
-                                                        @endphp
-                                                        <span
-                                                            class="badge {{ $badgeClass }}">{{ $statusText }}</span>
+                                                            @default
+                                                                <span class="badge bg-secondary rounded-pill px-3">
+                                                                    {{ ucfirst($item->status) }}
+                                                                </span>
+                                                        @endswitch
                                                     </td>
                                                     <td>
                                                         <a href="{{ route('dosen.bimbingan.show', $item->id) }}"
